@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { api } from "../services/api";
 
 export default function Signup() {
@@ -17,186 +17,192 @@ export default function Signup() {
     setLoading(true);
 
     try {
-      // FIX: backend route is /register, not /signup
       await api.post("/auth/register", { name, email, password });
-
-      // Auto-login after registration
       const loginRes = await api.post("/auth/login", { email, password });
       localStorage.setItem("token", loginRes.data.token);
       localStorage.setItem("user", JSON.stringify(loginRes.data.user));
-
       navigate("/");
     } catch (err) {
-      setError(err.response?.data?.error || "Signup failed. Please try again.");
+      setError(err.response?.data?.error || "Signup failed. Protocol initialization error.");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
-      <div className="layout-container flex h-full grow flex-col">
-        {/* Header */}
-        <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-primary/20 px-6 md:px-20 py-4">
+    <div className="flex h-screen w-full bg-background-dark font-display text-white overflow-hidden">
+      {/* Left Side: Marketing Panel */}
+      <div className="hidden lg:flex lg:w-1/2 relative bg-primary items-center justify-center p-20 overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <div className="absolute top-[-20%] left-[-10%] size-[600px] rounded-full bg-white/5 blur-[120px]" />
+          <div className="absolute bottom-[-20%] right-[-10%] size-[500px] rounded-full bg-black/30 blur-[100px]" />
+        </div>
+
+        <div className="relative z-10 max-w-lg w-full flex flex-col gap-12 animate-in slide-in-from-left duration-700">
           <div className="flex items-center gap-3">
-            <div className="text-primary flex items-center justify-center">
-              <span className="material-symbols-outlined text-3xl">account_balance</span>
+            <div className="size-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20">
+              <span className="material-symbols-outlined text-white text-3xl">account_balance</span>
             </div>
-            <h2 className="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-[-0.015em]">Alimony Finance</h2>
+            <h2 className="text-2xl font-black uppercase tracking-tighter">Alimony Finance</h2>
           </div>
-          <div className="flex items-center gap-4">
-            <p className="hidden sm:block text-slate-500 dark:text-slate-400 text-sm">Already have an account?</p>
-            <Link to="/login" className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
-              <span className="truncate">Log in</span>
-            </Link>
-          </div>
-        </header>
 
-        <main className="flex flex-1 justify-center py-12 px-6 z-10">
-          <div className="layout-content-container flex flex-col max-w-[560px] flex-1">
-            {/* Progress Bar Component */}
-            <div className="flex flex-col gap-3 mb-8">
-              <div className="flex gap-6 justify-between items-center">
-                <p className="text-slate-900 dark:text-slate-100 text-sm font-semibold uppercase tracking-wider">Step 1 of 2</p>
-                <p className="text-primary text-sm font-medium">Account Setup</p>
-              </div>
-              <div className="h-2 w-full rounded-full bg-slate-200 dark:bg-primary/10">
-                <div className="h-2 rounded-full bg-primary" style={{ width: "50%" }}></div>
-              </div>
-            </div>
+          <div className="flex flex-col gap-8">
+            <h1 className="text-5xl font-black leading-tight tracking-tighter">
+              Document Everything.<br />
+              <span className="text-white/60">Fear Nothing.</span>
+            </h1>
 
-            {/* Intro Text */}
-            <div className="flex flex-col gap-3 mb-8">
-              <h1 className="text-slate-900 dark:text-slate-100 text-4xl font-black leading-tight tracking-[-0.033em]">Secure your financial future</h1>
-              <p className="text-slate-600 dark:text-primary/70 text-base font-normal leading-normal">Professional-grade tools for managing and documenting alimony obligations.</p>
-            </div>
-
-            {error && <p className="text-red-500 font-semibold mb-4">{error}</p>}
-
-            {/* Signup Form */}
-            <form className="flex flex-col gap-6" onSubmit={handleSignup}>
-              <div className="grid grid-cols-1 gap-4">
-                <label className="flex flex-col gap-2">
-                  <span className="text-slate-700 dark:text-slate-200 text-sm font-semibold">Full Name</span>
-                  <div className="relative">
-                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl">person</span>
-                    <input
-                      className="form-input block w-full rounded-xl border-slate-200 dark:border-primary/20 bg-white dark:bg-primary/5 pl-12 pr-4 py-3 text-slate-900 dark:text-slate-100 focus:border-primary focus:ring-primary/20 transition-all"
-                      placeholder="John Doe"
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      required
-                    />
-                  </div>
-                </label>
-                <label className="flex flex-col gap-2">
-                  <span className="text-slate-700 dark:text-slate-200 text-sm font-semibold">Email Address</span>
-                  <div className="relative">
-                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl">mail</span>
-                    <input
-                      className="form-input block w-full rounded-xl border-slate-200 dark:border-primary/20 bg-white dark:bg-primary/5 pl-12 pr-4 py-3 text-slate-900 dark:text-slate-100 focus:border-primary focus:ring-primary/20 transition-all"
-                      placeholder="name@email.com"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                    />
-                  </div>
-                </label>
-                <label className="flex flex-col gap-2">
-                  <span className="text-slate-700 dark:text-slate-200 text-sm font-semibold">Password</span>
-                  <div className="relative">
-                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl">lock</span>
-                    <input
-                      className="form-input block w-full rounded-xl border-slate-200 dark:border-primary/20 bg-white dark:bg-primary/5 pl-12 pr-12 py-3 text-slate-900 dark:text-slate-100 focus:border-primary focus:ring-primary/20 transition-all"
-                      placeholder="••••••••"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                    <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl cursor-pointer">visibility</span>
-                  </div>
-                </label>
-              </div>
-
-              {/* Goal Selection (Visual only) */}
-              <div className="flex flex-col gap-4 mt-4">
-                <span className="text-slate-700 dark:text-slate-200 text-sm font-semibold">What is your primary goal?</span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setGoal('tracking')}
-                    className={`flex items-center gap-3 p-4 rounded-xl border-2 text-left transition-all ${goal === 'tracking'
-                        ? 'border-primary bg-primary/5'
-                        : 'border-slate-200 dark:border-primary/10 bg-transparent hover:border-primary/30'
-                      }`}
-                  >
-                    <span className={`material-symbols-outlined ${goal === 'tracking' ? 'text-primary' : 'text-slate-400'}`}>analytics</span>
-                    <div className="flex flex-col">
-                      <span className="text-slate-900 dark:text-slate-100 text-sm font-bold">Tracking Alimony</span>
-                      <span className="text-slate-500 dark:text-slate-400 text-xs">Manage ongoing payments</span>
-                    </div>
-                    {goal === 'tracking' && <span className="material-symbols-outlined ml-auto text-primary text-xl">check_circle</span>}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setGoal('evidence')}
-                    className={`flex items-center gap-3 p-4 rounded-xl border-2 text-left transition-all ${goal === 'evidence'
-                        ? 'border-primary bg-primary/5'
-                        : 'border-slate-200 dark:border-primary/10 bg-transparent hover:border-primary/30'
-                      }`}
-                  >
-                    <span className={`material-symbols-outlined ${goal === 'evidence' ? 'text-primary' : 'text-slate-400'}`}>gavel</span>
-                    <div className="flex flex-col">
-                      <span className="text-slate-900 dark:text-slate-100 text-sm font-bold">Preparing Evidence</span>
-                      <span className="text-slate-500 dark:text-slate-400 text-xs">Documentation for court</span>
-                    </div>
-                    {goal === 'evidence' && <span className="material-symbols-outlined ml-auto text-primary text-xl">check_circle</span>}
-                  </button>
+            <div className="flex flex-col gap-6">
+              <div className="flex gap-4">
+                <div className="size-8 rounded-lg bg-white/10 flex items-center justify-center border border-white/10 shrink-0">
+                  <span className="material-symbols-outlined text-sm text-primary">verified</span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs font-black uppercase tracking-widest text-white">Bank-Grade Security</span>
+                  <span className="text-[10px] font-bold text-white/60 uppercase tracking-widest">256-bit AES encryption for all legal sensitive data.</span>
                 </div>
               </div>
-
-              {/* CTA Button */}
-              <div className="flex flex-col gap-4 mt-4">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 px-5 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] shadow-lg shadow-primary/20 hover:scale-[1.01] active:scale-[0.99] transition-all disabled:opacity-50"
-                >
-                  <span>{loading ? "Creating account..." : "Continue to Goals"}</span>
-                  <span className="material-symbols-outlined ml-2">arrow_forward</span>
-                </button>
-                <p className="text-center text-xs text-slate-500 dark:text-slate-400 leading-relaxed px-4">
-                  By signing up, you agree to our <a className="text-primary underline" href="#">Terms of Service</a> and <a className="text-primary underline" href="#">Privacy Policy</a>. We use 256-bit encryption to secure your data.
-                </p>
+              <div className="flex gap-4">
+                <div className="size-8 rounded-lg bg-white/10 flex items-center justify-center border border-white/10 shrink-0">
+                  <span className="material-symbols-outlined text-sm text-primary">monitoring</span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs font-black uppercase tracking-widest text-white">Anomaly Detection</span>
+                  <span className="text-[10px] font-bold text-white/60 uppercase tracking-widest">Real-time scans for inconsistent spending patterns.</span>
+                </div>
               </div>
-            </form>
-          </div>
-        </main>
-
-        {/* Footer Decorative */}
-        <footer className="mt-auto py-8 flex flex-col items-center gap-4 opacity-50 z-10">
-          <div className="flex gap-8">
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-sm">verified_user</span>
-              <span className="text-xs font-medium">Bank-level Security</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-sm">encrypted</span>
-              <span className="text-xs font-medium">End-to-End Encryption</span>
+              <div className="flex gap-4">
+                <div className="size-8 rounded-lg bg-white/10 flex items-center justify-center border border-white/10 shrink-0">
+                  <span className="material-symbols-outlined text-sm text-primary">gavel</span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs font-black uppercase tracking-widest text-white">Trial Ready</span>
+                  <span className="text-[10px] font-bold text-white/60 uppercase tracking-widest">Automated PDF reports formatted for legal counsel.</span>
+                </div>
+              </div>
             </div>
           </div>
-        </footer>
+
+          <div className="flex items-center gap-6 opacity-60">
+            <div className="flex flex-col">
+              <span className="text-2xl font-black">15k+</span>
+              <span className="text-[10px] font-black uppercase tracking-widest">Active Users</span>
+            </div>
+            <div className="w-px h-8 bg-white/20" />
+            <div className="flex flex-col">
+              <span className="text-2xl font-black">99.9%</span>
+              <span className="text-[10px] font-black uppercase tracking-widest">Uptime</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Background Decoration */}
-      <div className="fixed top-0 right-0 z-0 w-1/3 h-full overflow-hidden pointer-events-none opacity-20 dark:opacity-10">
-        <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full bg-primary blur-[120px]"></div>
-      </div>
-      <div className="fixed bottom-0 left-0 z-0 w-1/3 h-full overflow-hidden pointer-events-none opacity-20 dark:opacity-10">
-        <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] rounded-full bg-primary blur-[100px]"></div>
+      {/* Right Side: Signup Form */}
+      <div className="flex flex-col w-full lg:w-1/2 justify-center p-8 lg:p-24 bg-background-dark animate-in fade-in duration-1000">
+        <div className="max-w-md w-full mx-auto flex flex-col gap-10">
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-2">
+              <div className="h-1 flex-1 bg-primary rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+              <div className="h-1 flex-1 bg-white/5 rounded-full" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">Protocol Phase 01</h3>
+              <h1 className="text-4xl font-black uppercase tracking-tighter">Establish Terminal</h1>
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">Create your secure financial dossier</p>
+            </div>
+          </div>
+
+          {error && (
+            <div className="p-4 rounded-xl border border-expense/20 bg-expense/5 text-expense text-[10px] font-black uppercase tracking-widest animate-in slide-in-from-top duration-300">
+              {error}
+            </div>
+          )}
+
+          <form className="flex flex-col gap-5" onSubmit={handleSignup}>
+            <div className="flex flex-col gap-2">
+              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Legal Name</label>
+              <div className="relative group">
+                <input
+                  className="w-full h-12 pl-12 pr-4 rounded-2xl glass border border-white/5 text-white text-xs font-bold focus:border-primary/50 outline-none transition-all group-hover:border-white/10"
+                  placeholder="Johnathan Doe"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-xl group-focus-within:text-primary transition-colors">badge</span>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Communication Uplink (Email)</label>
+              <div className="relative group">
+                <input
+                  className="w-full h-12 pl-12 pr-4 rounded-2xl glass border border-white/5 text-white text-xs font-bold focus:border-primary/50 outline-none transition-all group-hover:border-white/10"
+                  placeholder="name@secure.com"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-xl group-focus-within:text-primary transition-colors">alternate_email</span>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Secure Passcode</label>
+              <div className="relative group">
+                <input
+                  className="w-full h-12 pl-12 pr-4 rounded-2xl glass border border-white/5 text-white text-xs font-bold focus:border-primary/50 outline-none transition-all group-hover:border-white/10"
+                  placeholder="••••••••"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-xl group-focus-within:text-primary transition-colors">fingerprint</span>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3 mt-4">
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Operational Objective</span>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setGoal('tracking')}
+                  className={`p-4 rounded-2xl glass border flex flex-col gap-2 transition-all group ${goal === 'tracking' ? 'border-primary shadow-[0_0_15px_rgba(16,185,129,0.2)]' : 'border-white/5 opacity-60 hover:opacity-100 hover:border-white/10'}`}
+                >
+                  <span className={`material-symbols-outlined text-xl ${goal === 'tracking' ? 'text-primary' : 'text-slate-400'}`}>query_stats</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest leading-none">Standard Tracking</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setGoal('evidence')}
+                  className={`p-4 rounded-2xl glass border flex flex-col gap-2 transition-all group ${goal === 'evidence' ? 'border-primary shadow-[0_0_15px_rgba(16,185,129,0.2)]' : 'border-white/5 opacity-60 hover:opacity-100 hover:border-white/10'}`}
+                >
+                  <span className={`material-symbols-outlined text-xl ${goal === 'evidence' ? 'text-primary' : 'text-slate-400'}`}>balance</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest leading-none">Evidence Prep</span>
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="h-12 bg-primary text-background-dark font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl hover:shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all disabled:opacity-50 mt-6"
+              disabled={loading}
+            >
+              {loading ? "Initializing..." : "Finalize Establishment"}
+            </button>
+
+            <p className="text-center text-[8px] font-bold text-slate-600 uppercase tracking-[0.1em] px-10 leading-relaxed">
+              By initializing, you agree to the <span className="text-slate-400">Tactical Terms of Service</span> & <span className="text-slate-400">Privacy Protocols</span>.
+            </p>
+          </form>
+
+          <p className="text-center text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+            Already established? <a className="text-primary font-black hover:text-white transition-colors" href="/login">Initialize Uplink</a>
+          </p>
+        </div>
       </div>
     </div>
   );
