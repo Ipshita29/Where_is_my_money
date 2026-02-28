@@ -20,16 +20,33 @@ const db = new sqlite3.Database(dbPath, (err) => {
 
 // create tables automatically
 db.serialize(() => {
+    // Drop existing tables for a clean start (hackathon requirement)
+    db.run("DROP TABLE IF EXISTS anomalies");
+    db.run("DROP TABLE IF EXISTS transactions");
+    db.run("DROP TABLE IF EXISTS users");
+
+    db.run(`
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    `);
+
     db.run(`
         CREATE TABLE IF NOT EXISTS transactions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
             date TEXT,
             merchant TEXT,
             amount REAL,
             description TEXT,
             type TEXT,
             category TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(user_id) REFERENCES users(id)
         )
     `);
 
