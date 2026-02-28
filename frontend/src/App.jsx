@@ -1,11 +1,12 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useState } from "react";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Upload from "./pages/Upload";
+import Transactions from "./pages/Transactions";
+import Anomalies from "./pages/Anomalies";
 import "./index.css";
-import "./styles/variables.css";
-import "./styles/layout.css";
 
 // Auth guard: redirect to /login if no token stored
 function PrivateRoute({ children }) {
@@ -14,6 +15,8 @@ function PrivateRoute({ children }) {
 }
 
 function App() {
+  const [dateRange, setDateRange] = useState({ start: "", end: "" });
+
   return (
     <BrowserRouter>
       <Routes>
@@ -23,7 +26,23 @@ function App() {
           path="/"
           element={
             <PrivateRoute>
-              <Dashboard />
+              <Dashboard dateRange={dateRange} onDateRangeChange={setDateRange} />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/transactions"
+          element={
+            <PrivateRoute>
+              <Transactions dateRange={dateRange} onDateRangeChange={setDateRange} />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/anomalies"
+          element={
+            <PrivateRoute>
+              <Anomalies dateRange={dateRange} onDateRangeChange={setDateRange} />
             </PrivateRoute>
           }
         />
