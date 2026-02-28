@@ -16,6 +16,8 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-router.post('/', upload.single('statement'), uploadController.uploadStatement);
+const authMiddleware = require('../utils/authMiddleware');
+
+router.post('/', authMiddleware, upload.single('statement'), uploadController.uploadStatement);
 
 module.exports = router;

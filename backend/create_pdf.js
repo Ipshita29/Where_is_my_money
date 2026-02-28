@@ -1,0 +1,37 @@
+const fs = require('fs');
+// Very basic PDF structure that pdf-parse might be able to extract text from
+const pdfContent = `%PDF-1.4
+1 0 obj
+<</Type/Catalog/Pages 2 0 R>>
+endobj
+2 0 obj
+<</Type/Pages/Kids[3 0 R]/Count 1>>
+endobj
+3 0 obj
+<</Type/Page/Parent 2 0 R/Resources<<>>/Contents 4 0 R>>
+endobj
+4 0 obj
+<</Length 100>>
+stream
+BT
+/F1 12 Tf
+70 700 Td
+(2025-02-01 Walmart -50.00) Tj
+ET
+endstream
+endobj
+xref
+0 5
+0000000000 65535 f
+0000000009 00000 n
+0000000062 00000 n
+0000000117 00000 n
+0000000188 00000 n
+trailer
+<</Size 5/Root 1 0 R>>
+startxref
+340
+%%EOF`;
+
+fs.writeFileSync('sample.pdf', pdfContent);
+console.log('sample.pdf created');
