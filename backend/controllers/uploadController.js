@@ -4,6 +4,8 @@ const db = require('../utils/db');
 const pdf = require('pdf-parse');
 const path = require('path');
 
+const { categorizeMerchant } = require('../services/categorize');
+
 exports.uploadStatement = async (req, res) => {
     if (!req.file) {
         return res.status(400).json({ error: 'No file uploaded' });
@@ -75,13 +77,14 @@ const parseCSV = (filePath) => {
                 const amount = parseFloat(
                     row.Amount || row.amount || row.Debit || row.Credit || 0
                 );
+                const merchant = row.Description || row.Narration || row.Remarks || 'Unknown';
                 results.push({
                     date: row.Date || row.date || new Date().toISOString().split('T')[0],
-                    merchant: row.Description || row.Narration || row.Remarks || 'Unknown',
+                    merchant: merchant,
                     amount: amount,
                     description: row.Description || '',
                     type: amount < 0 ? 'debit' : 'credit',
-                    category: 'Uncategorized'
+                    category: categorizeMerchant(merchant)
                 });
             })
             .on('error', reject)
@@ -122,7 +125,7 @@ const parsePDF = async (filePath) => {
                     amount: amount,
                     description: description,
                     type: amount < 0 ? 'debit' : 'credit',
-                    category: 'Uncategorized'
+                    category: categorizeMerchant(description)
                 });
             }
         });
