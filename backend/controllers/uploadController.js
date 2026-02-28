@@ -5,6 +5,7 @@ const pdf = require('pdf-parse'); // v1.1.1 — simple async function API
 const path = require('path');
 
 const { categorizeMerchant } = require('../services/categorize');
+const { detectAnomalies } = require('../services/anomaly');
 
 exports.uploadStatement = async (req, res) => {
     if (!req.file) {
