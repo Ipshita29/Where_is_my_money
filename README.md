@@ -76,14 +76,64 @@ User → Frontend → Backend → ML/LLM → Database → Insights Response
 6. UI visualizes everything  
 
 ### **Architecture Diagram**
-will add
++-----------------------+
+|   CSV / PDF Upload    |
++----------+------------+
+           |
+           v
++------------------------------+
+|   Parsing Layer (CSV/PDF)    |
++------------------------------+
+           |
+           v
++----------------------------------------------+
+| Categorization Engine                        |
+| - Keyword-based rules                        |
+| - UPI pattern detection                      |
+| - LLM-based merchant classification          |
++----------------------------------------------+
+           |
+           v
++----------------------------------------------+
+| Anomaly Detection Engine                      |
+| - Amount outliers                             |
+| - Frequency spikes                            |
+| - New merchant detection                      |
+| - Behavioral shifts                           |
++----------------------------------------------+
+           |
+           v
++----------------------------------------------+
+| Risk Scoring + LLM Explanation Generator     |
++----------------------------------------------+
+           |
+           v
++-----------------------------+
+|     SQLite Database         |
++-----------------------------+
+           |
+           v
++-----------------------------+
+|     React Frontend UI       |
+|  Dashboard | Timeline | AI  |
++-----------------------------+
 
 ---
 
 # **5. Database Design**
 
 ### **ER Diagram**
-will add
++---------------------+           +---------------------+
+|     TRANSACTIONS    | 1       M |      ANOMALIES      |
++---------------------+-----------+---------------------+
+| id (PK)             |           | id (PK)             |
+| date                |           | transaction_id (FK) |
+| merchant            |           | risk_score          |
+| amount              |           | flags               |
+| category            |           | explanation         |
+| description         |           | timestamp           |
+| type                |           +---------------------+
++---------------------+
 
 ### **ER Diagram Description**
 - **Users**: stores identity  
@@ -96,19 +146,10 @@ will add
 
 # **6. Dataset Selected**
 
-### **Dataset Name**
-
-
-### **Source**
-
-
-### **Data Type**
-
-
-### **Selection Reason**
-
-
-### **Preprocessing Steps**
+This project does not require a pre-built dataset.
+Instead, the system processes user-uploaded bank statements, including:
+ - CSV statements
+ - PDF statements
 
 ---
 
@@ -146,7 +187,7 @@ will add
 - SQLite  
 
 ### **Deployment**
-- Render / Vercel / Railway  
+- Render / Vercel / Railway (not decided yet)
 
 ---
 
@@ -172,29 +213,29 @@ will add
 
 # **10. Module-wise Development & Deliverables**
 
-### **Checkpoint 1: Research & Planning**
+### **Checkpoint 1: **
 **Deliverables:**
 - Problem statement  
 - Architecture plan  
 
 
-### **Checkpoint 2: Backend Development**
+### **Checkpoint 2: **
 **Deliverables:**
 
 
-### **Checkpoint 3: Frontend Development**
+### **Checkpoint 3: **
 **Deliverables:**
 
 
-### **Checkpoint 4: Model Training**
+### **Checkpoint 4: **
 **Deliverables:**
  
 
-### **Checkpoint 5: Model Integration**
+### **Checkpoint 5: **
 **Deliverables:**
 
 
-### **Checkpoint 6: Deployment**
+### **Checkpoint 6: **
 **Deliverables:**
 
 
