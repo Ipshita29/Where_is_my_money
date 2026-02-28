@@ -1,64 +1,135 @@
-# Where Is My Money?
+# **Where Is My Money?**
 > A personal finance anomaly detector that helps you understand where your money actually goes.
 
-Where Is My Money? is a smart, lightweight tool that analyzes your bank statements, auto-categorizes your spending, detects unusual financial patterns, and generates friendly, AI-based explanations for suspicious transactions.
-
-This project was built in 24 hours during a hackathon.
+A smart, AI-powered financial insight system that analyzes your bank statements, auto-categorizes spending, detects anomalies, and explains suspicious transactions.
 
 ---
 
-## 🚨 Problem
+# **1. Problem Statement**
 
-Banks provide basic statements, but users rarely get intelligent insights into:
+### **Problem Title**
+Lack of Intelligent Insights in Personal Finance Tracking
 
-- Unexpected charges  
-- Suspicious merchants  
-- Spending spikes  
-- Irregular financial behavior  
-- Hidden overspending patterns  
+### **Problem Description**
+Bank statements only provide raw data, leaving users unaware of unusual charges, hidden overspending, or suspicious merchants. Users generally realize financial issues *after* money is lost.
 
-Most people only realize spending issues *after* money is gone.
+### **Target Users**
+- Students  
+- Working professionals  
+- Multi-account users  
+- Anyone tracking personal finances  
 
----
-
-## 🎯 Solution — *Where Is My Money?*
-
-This system transforms raw transaction data into *actionable financial awareness*.
-
-### ✔ Imports CSV / PDF bank statements  
-### ✔ Automatically categorizes transactions  
-### ✔ Flags anomalies like:
-- High-amount transactions  
-- Sudden frequency spikes  
-- New merchants  
-- Behavior shifts  
-
-### ✔ Generates explainable risk scores  
-### ✔ Visualizes anomalies in a timeline  
-### ✔ Provides LLM-powered insights  
-- AI-based merchant categorization  
-- AI-generated explanations for anomalies  
+### **Existing Gaps**
+- No automated anomaly detection  
+- No categorization of merchants  
+- No LLM-powered insights  
+- No visual breakdowns of anomalies  
+- No behavioral financial analysis  
 
 ---
 
-## 🧠 Features
+# **2. Problem Understanding & Approach**
 
--  **Upload CSV/PDF** bank statements  
--  **Rule-based + LLM-based categorization**  
--  **Anomaly detection engine**  
--  **Explainable risk scoring**  
--  **Recharts timeline visualization**  
--  **LLM-based explanation generator**  
--  **SQLite storage for transactions**  
--  **Clean React UI (no Tailwind)**  
+### **Root Cause Analysis**
+- Statements lack intelligence  
+- Manual spending review is time-consuming  
+- Users cannot detect behavioral shifts or sudden financial spikes  
+
+### **Solution Strategy**
+- Automate categorization using rules + AI  
+- Detect anomalies through pattern analysis  
+- Explain anomalies using an LLM  
+- Provide an interactive visualization dashboard  
 
 ---
 
-## 🏗️ Tech Stack
+# **3. Proposed Solution**
+
+### **Solution Overview**
+Where Is My Money? converts raw bank statement data into actionable financial intelligence.
+
+### **Core Idea**
+Upload → Parse → Categorize → Detect Anomalies → Explain → Visualize
+
+### **Key Features**
+- Upload CSV/PDF statements  
+- Rule-based + LLM-based categorization  
+- Detect spikes, outliers, new merchants  
+- Generate risk scores  
+- AI explanations for anomalies  
+- Timeline visualization  
+- Clean React dashboard  
+
+---
+
+# **4. System Architecture**
+
+### **High-Level Flow**
+User → Frontend → Backend → ML/LLM → Database → Insights Response
+
+### **Architecture Description**
+1. User uploads CSV/PDF  
+2. Backend parses data  
+3. Categorization engine assigns categories  
+4. Anomaly engine finds unusual records  
+5. LLM produces explanations & risk scores  
+6. UI visualizes everything  
+
+### **Architecture Diagram**
+will add
+
+---
+
+# **5. Database Design**
+
+### **ER Diagram**
+will add
+
+### **ER Diagram Description**
+- **Users**: stores identity  
+- **Transactions**: stores parsed bank entries  
+- **Categories**: maps merchants/spends  
+- **Anomalies**: stores detected anomalies  
+- **RiskScores**: risk level + LLM explanation  
+
+---
+
+# **6. Dataset Selected**
+
+### **Dataset Name**
+
+
+### **Source**
+
+
+### **Data Type**
+
+
+### **Selection Reason**
+
+
+### **Preprocessing Steps**
+
+---
+
+# **7. Model Selected**
+
+### **Model Name**
+- OpenAI GPT / Gemini Model  
+- Rule-based Categorization Model  
+
+### **Selection Reasoning**
+- Strong natural language understanding  
+- Works well for unfamiliar merchants  
+- Excellent at generating explanations  
+
+---
+
+# **8. Technology Stack**
 
 ### **Frontend**
 - React + Vite  
-- CSS Modules / Plain CSS  
+- CSS Modules  
 - Recharts  
 - Axios  
 
@@ -67,57 +138,124 @@ This system transforms raw transaction data into *actionable financial awareness
 - Express.js  
 - csv-parser  
 - pdf-parse  
-- sqlite3  
 
-### **AI**
-- OpenAI / Gemini API  
-- Merchant categorizer  
-- Anomaly explanation generator  
+### **ML/AI**
+- OpenAI API / Gemini API  
+
+### **Database**
+- SQLite  
+
+### **Deployment**
+- Render / Vercel / Railway  
 
 ---
 
-## 🧱 Architecture
+# **9. API Documentation & Testing**
 
-```txt
-                      +----------------------+
-     CSV / PDF -----> |   Upload Endpoint    |
-                      +----------------------+
-                                 |
-                                 v
-                   +----------------------------+
-                   |  Parsing Layer (CSV/PDF)   |
-                   +----------------------------+
-                                 |
-                                 v
-                 +--------------------------------+
-                 |  Categorization Engine         |
-                 |  - Rule-based matching         |
-                 |  - UPI pattern detection       |
-                 |  - LLM merchant classification |
-                 +--------------------------------+
-                                 |
-                                 v
-                   +----------------------------+
-                   |  Anomaly Detection Engine  |
-                   |  - Outliers                |
-                   |  - Spikes                  |
-                   |  - Behavioral shifts       |
-                   +----------------------------+
-                                 |
-                                 v
-                 +--------------------------------+
-                 |  Risk Scoring + LLM Explanation |
-                 +--------------------------------+
-                                 |
-                                 v
-                       +-------------------+
-                       |  SQLite Database  |
-                       +-------------------+
-                                 |
-                                 v
-                     +-------------------------+
-                     |   React Frontend UI     |
-                     |   - Dashboard           |
-                     |   - Timeline            |
-                     |   - Insights            |
-                     +-------------------------+
+### **API Endpoints List**
+
+#### **1. POST /upload**
+Upload CSV/PDF → parse + store  
+#### **2. GET /transactions**
+Fetch all parsed transactions  
+#### **3. GET /anomalies**
+Fetch anomaly results  
+#### **4. POST /explain**
+Generate LLM explanation for a transaction  
+
+---
+
+### **API Testing Screenshots**
+will add
+
+---
+
+# **10. Module-wise Development & Deliverables**
+
+### **Checkpoint 1: Research & Planning**
+**Deliverables:**
+- Problem statement  
+- Architecture plan  
+
+
+### **Checkpoint 2: Backend Development**
+**Deliverables:**
+
+
+### **Checkpoint 3: Frontend Development**
+**Deliverables:**
+
+
+### **Checkpoint 4: Model Training**
+**Deliverables:**
+ 
+
+### **Checkpoint 5: Model Integration**
+**Deliverables:**
+
+
+### **Checkpoint 6: Deployment**
+**Deliverables:**
+
+
+---
+
+# **11. End-to-End Workflow**
+
+Upload → Parse → Categorize → Detect → Score → Explain → Visualize → Insights to User
+
+---
+
+# **12. Demo & Video**
+
+**Live Demo:** _Add Link_  
+**Video Demo:** _Add Link_  
+**GitHub Repository:** _Add Link_
+
+---
+
+# **13. Hackathon Deliverables Summary**
+- Working prototype  
+- End-to-end pipeline  
+- AI-backed anomaly detection  
+- Clean UI  
+- Architecture + ER diagrams  
+- Demo video  
+
+---
+
+# **14. Team Roles & Responsibilities**
+
+| Member Name | Role | Responsibilities |
+|------------|------|------------------|
+| Ipshita Patel| Frontend + PPT + Docs | Dashboard, UI ,Coordination & documentation |
+| Kumar Manak| Backend  | Parsing, API, DB  |
+| Krish Mukesh Jain | Backend + ML/AI | Categorization + LLM |
+
+
+---
+
+# **15. Future Scope & Scalability**
+
+### **Short-Term**
+- Multi-bank support  
+- Exportable PDF reports  
+- More graphs  
+
+### **Long-Term**
+- Real-time anomaly alerts  
+- Investment anomaly detection  
+- Integration with UPI apps  
+
+---
+
+# **16. Known Limitations**
+- Accuracy depends on transaction quality  
+- Requires stable parsing for PDFs   
+
+---
+
+# **17. Impact**
+Where Is My Money? empowers users with clear, intelligent financial awareness—helping people detect problems earlier, avoid unnecessary losses, and understand spending behavior with AI-driven insights.
+
+---
