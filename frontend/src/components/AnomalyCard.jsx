@@ -7,8 +7,11 @@ export default function AnomalyCard({ id, merchant, amount, category, date, risk
   const [explanation, setExplanation] = useState(null);
 
   const handleExplain = async () => {
+    if (explanation) {
+      setExplanation(null);
+      return;
+    }
     setLoadingExplain(true);
-    setExplanation(null);
     try {
       const response = await api.post("/anomalies/explain", {
         merchant, amount, category, date
@@ -32,46 +35,57 @@ export default function AnomalyCard({ id, merchant, amount, category, date, risk
       setLoadingDismiss(false);
     }
   };
+
+  const riskLevel = typeof risk === 'number' ? (risk > 70 ? 'CRITICAL' : 'MODERATE') : risk;
+
   return (
-    <tr className="hover:bg-primary/5 transition-colors group">
-      <td className="px-6 py-4 w-1/3">
+    <tr className="group hover:bg-white/[0.02] transition-all">
+      <td className="py-4">
         <div className="flex flex-col">
-          <span className="font-semibold text-slate-900 dark:text-white">{merchant}</span>
-          <span className="text-xs text-slate-500 dark:text-slate-400">{risk} Risk Activity</span>
+          <span className="text-xs font-black text-white uppercase tracking-tight mb-0.5">{merchant}</span>
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{category || "Uncategorized"}</span>
         </div>
       </td>
-      <td className="px-6 py-4 text-right text-sm font-bold text-rose-500 w-1/6">
-        ${amount}
+      <td className="py-4 text-right">
+        <span className="text-xs font-black text-expense tabular-nums tracking-tighter">${amount.toLocaleString()}</span>
       </td>
-      <td className="px-6 py-4 w-1/3">
-        <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium bg-rose-500/10 text-rose-500 max-w-full">
-          <span className="w-1 h-1 rounded-full bg-rose-500 flex-shrink-0"></span>
-          <span className="truncate" title={details}>{details || "Deviation detected"}</span>
-        </span>
+      <td className="py-4 px-4">
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <div className={`size-2 rounded-full ${riskLevel === 'CRITICAL' || riskLevel === 'HIGH' ? 'bg-expense animate-pulse' : 'bg-alimony'}`} />
+            <div className={`absolute inset-0 size-2 rounded-full ${riskLevel === 'CRITICAL' || riskLevel === 'HIGH' ? 'bg-expense animate-ping' : ''} opacity-40`} />
+          </div>
+          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest truncate max-w-[200px]" title={details}>
+            {details}
+          </span>
+        </div>
       </td>
-      <td className="px-6 py-4 text-right w-1/6">
-        <div className="flex flex-col items-end gap-2">
+      <td className="py-4 text-right">
+        <div className="flex justify-end gap-2 items-center">
           {explanation && (
-            <div className="text-xs text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-primary/20 p-2 rounded-lg max-w-[200px] text-left mb-2">
-              {explanation}
+            <div className="absolute right-0 top-full mt-2 glass-dark z-50 p-4 rounded-xl border border-alimony/20 max-w-[300px] text-left animate-in fade-in zoom-in duration-200">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="material-symbols-outlined text-sm text-alimony">psychology</span>
+                <span className="text-[10px] font-black text-white uppercase tracking-widest">AI Brain Analysis</span>
+              </div>
+              <p className="text-[11px] text-slate-300 leading-relaxed font-medium">{explanation}</p>
             </div>
           )}
-          <div className="flex justify-end gap-2">
-            <button
-              onClick={handleExplain}
-              disabled={loadingExplain}
-              className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary text-white hover:bg-primary/90 transition-colors disabled:opacity-50"
-            >
-              {loadingExplain ? "Thinking..." : "Explain"}
-            </button>
-            <button
-              onClick={handleDismiss}
-              disabled={loadingDismiss}
-              className="px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-200 dark:border-primary/20 hover:bg-slate-100 dark:hover:bg-primary/10 text-slate-700 dark:text-slate-300 transition-colors disabled:opacity-50"
-            >
-              {loadingDismiss ? "..." : "Dismiss"}
-            </button>
-          </div>
+          <button
+            onClick={handleExplain}
+            disabled={loadingExplain}
+            className={`size-9 flex items-center justify-center rounded-xl transition-all ${explanation ? 'bg-alimony text-white' : 'glass border border-white/5 text-alimony hover:bg-alimony/10'}`}
+          >
+            <span className="material-symbols-outlined text-lg">{loadingExplain ? "sync" : "psychology"}</span>
+          </button>
+          <button
+            onClick={handleDismiss}
+            disabled={loadingDismiss}
+            className="size-9 lg:w-auto lg:px-4 flex items-center justify-center rounded-xl glass border border-white/5 text-slate-500 hover:text-white hover:bg-expense/10 hover:border-expense/20 transition-all"
+          >
+            <span className="material-symbols-outlined text-lg lg:text-sm">{loadingDismiss ? "sync" : "close"}</span>
+            <span className="hidden lg:block ml-2 text-[10px] font-black uppercase tracking-widest">Dismiss</span>
+          </button>
         </div>
       </td>
     </tr>
