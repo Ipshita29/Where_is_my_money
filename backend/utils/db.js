@@ -18,12 +18,8 @@ const db = new sqlite3.Database(dbPath, (err) => {
     }
 });
 
-// create tables automatically
+// create tables if they don't exist (data persists across restarts)
 db.serialize(() => {
-    // Drop existing tables for a clean start (hackathon requirement)
-    db.run("DROP TABLE IF EXISTS anomalies");
-    db.run("DROP TABLE IF EXISTS transactions");
-    db.run("DROP TABLE IF EXISTS users");
 
     db.run(`
         CREATE TABLE IF NOT EXISTS users (

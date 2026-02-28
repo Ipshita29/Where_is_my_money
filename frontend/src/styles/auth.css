@@ -1,0 +1,245 @@
+/* ===== Global Layout ===== */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: #0a0a0a;
+  overflow: hidden;
+  color: #ffffff;
+}
+
+.app-container {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* ===== Background Video ===== */
+.bg-video-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -2;
+}
+
+.bg-video-blur {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(80px);
+  z-index: -1;
+}
+
+/* ===== Floating Parallax Blocks ===== */
+.floating-block {
+  position: absolute;
+  perspective: 1000px;
+  cursor: pointer;
+  z-index: -1;
+  animation: drift var(--drift-duration, 20s) ease-in-out infinite alternate;
+}
+
+.block-inner {
+  width: 100%;
+  height: 100%;
+  transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform-style: preserve-3d;
+}
+
+.floating-block:hover .block-inner {
+  transform: rotateY(180deg) scale(1.1);
+}
+
+.block-front,
+.block-back {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  border-radius: 24px;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.block-back {
+  transform: rotateY(180deg);
+}
+
+.neon-yellow {
+  border: 2px solid #e1ff00;
+  box-shadow: 0 0 15px rgba(225, 255, 0, 0.3);
+}
+
+.neon-blue {
+  border: 2px solid #00d2ff;
+  box-shadow: 0 0 15px rgba(0, 210, 255, 0.3);
+}
+
+/* Block positions */
+.block-1 {
+  width: 180px;
+  height: 180px;
+  top: 15%;
+  right: 10%;
+}
+
+.block-2 {
+  width: 220px;
+  height: 140px;
+  bottom: 15%;
+  left: 10%;
+}
+
+.block-3 {
+  width: 150px;
+  height: 150px;
+  top: 20%;
+  left: 20%;
+}
+
+/* ===== Glass Card ===== */
+.glass-card {
+  background: rgba(18, 18, 18, 0.7);
+  backdrop-filter: blur(20px);
+  border-radius: 32px;
+  padding: 48px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.input-group {
+  margin-bottom: 20px;
+}
+
+.input-group label {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.75rem;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.glass-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 14px;
+  border-radius: 12px;
+  color: white;
+}
+
+.glass-input:focus {
+  border-color: #e1ff00;
+}
+
+/* ===== Buttons ===== */
+.btn-primary {
+  width: 100%;
+  background: white;
+  color: black;
+  padding: 14px;
+  border-radius: 12px;
+  font-weight: bold;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: #e1ff00;
+}
+
+/* Footer Link */
+.footer-link {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 20px;
+}
+
+/* ===== Auth Page Layout ===== */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0a0a0a;
+  padding: 2rem;
+}
+
+.auth-card {
+  background: rgba(18, 18, 18, 0.85);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+}
+
+.auth-card h2 {
+  margin-bottom: 1.5rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.auth-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.auth-card input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 12px 16px;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.auth-card input:focus {
+  border-color: #22c55e;
+}
+
+.auth-card .btn-primary {
+  margin-top: 0.5rem;
+  border: none;
+}
+
+.auth-card p {
+  margin-top: 1.25rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.auth-card a {
+  color: #22c55e;
+  text-decoration: none;
+}
+
+.auth-card a:hover {
+  text-decoration: underline;
+}
+
+.auth-error {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+  border-radius: 8px;
+  padding: 0.65rem 1rem;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}

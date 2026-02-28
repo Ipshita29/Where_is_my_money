@@ -1,9 +1,14 @@
 .header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
   padding: 24px 32px;
   border-bottom: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background: var(--background-dark, #0a0a0a);
+  backdrop-filter: blur(10px);
 }
 
 .header-title h2 {
@@ -44,6 +49,9 @@
 }
 
 .upload-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   background: var(--primary);
   padding: 10px 16px;
   border-radius: 12px;
@@ -51,6 +59,52 @@
   font-weight: 700;
   cursor: pointer;
   color: var(--background-dark);
+  font-size: 0.875rem;
+}
+
+/* ===== Auth header buttons ===== */
+.auth-header-btns {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.auth-header-btn {
+  padding: 8px 18px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: transparent;
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.auth-header-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn-primary-sm {
+  background: var(--primary, #22c55e);
+  color: #0a0a0a;
+  border-color: var(--primary, #22c55e);
+}
+
+.btn-primary-sm:hover {
+  background: #16a34a;
+  border-color: #16a34a;
+}
+
+.logout-btn {
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+}
+
+.logout-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.6);
 }
 
 .user-profile img {
