@@ -1,0 +1,66 @@
+const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
+const fs = require('fs');
+
+const dbDir = path.join(__dirname, '..', 'database');
+const dbPath = path.join(dbDir, 'db.sqlite');
+
+// auto-create folder if missing
+if (!fs.existsSync(dbDir)) {
+    fs.mkdirSync(dbDir, { recursive: true });
+}
+
+const db = new sqlite3.Database(dbPath, (err) => {
+    if (err) {
+        console.error('Database connection failed:', err.message);
+    } else {
+        console.log('Connected to SQLite database');
+    }
+});
+
+// create tables automatically
+db.serialize(() => {
+    // Drop existing tables for a clean start (hackathon requirement)
+    db.run("DROP TABLE IF EXISTS anomalies");
+    db.run("DROP TABLE IF EXISTS transactions");
+    db.run("DROP TABLE IF EXISTS users");
+
+    db.run(`
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    `);
+
+    db.run(`
+        CREATE TABLE IF NOT EXISTS transactions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            date TEXT,
+            merchant TEXT,
+            amount REAL,
+            description TEXT,
+            type TEXT,
+            category TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(user_id) REFERENCES users(id)
+        )
+    `);
+
+    db.run(`
+        CREATE TABLE IF NOT EXISTS anomalies (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            transaction_id INTEGER,
+            anomaly_type TEXT,
+            risk_score INTEGER,
+            explanation TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(transaction_id) REFERENCES transactions(id)
+        )
+    `);
+});
+
+module.exports = db;

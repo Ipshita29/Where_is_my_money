@@ -1,0 +1,50 @@
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.metric-card-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.metric-icon {
+  background: rgba(34, 197, 94, 0.1);
+  padding: 8px;
+  border-radius: 10px;
+  color: var(--primary);
+}
+
+.metric-label {
+  color: var(--text-muted);
+}
+
+.metric-value {
+  font-size: 1.8rem;
+  margin-top: 8px;
+  font-weight: 700;
+}
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+.badge-green {
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--primary);
+}
+
+.badge-red {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.badge-orange {
+  background: rgba(251, 146, 60, 0.1);
+  color: #fb923c;
+}
