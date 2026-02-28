@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import { api } from "../services/api";
-import "../styles/dashboard.css";
 
 export default function Upload() {
     const [file, setFile] = useState(null);
@@ -52,89 +51,89 @@ export default function Upload() {
     }
 
     return (
-        <div className="app-container">
+        <div className="flex h-full min-h-screen bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
             <Sidebar />
 
-            <main className="main-content">
+            <main className="flex-1 flex flex-col min-w-0">
                 <Header />
 
-                <div style={{ padding: "2rem", maxWidth: "560px" }}>
-                    <h3 style={{ marginBottom: "1.5rem" }}>Upload Bank Statement</h3>
+                <div className="p-8 max-w-3xl w-full mx-auto space-y-8 mt-10">
+                    {/* Instructions Header */}
+                    <div className="bg-primary/5 border border-primary/20 rounded-xl p-6 flex gap-6 items-start">
+                        <div className="bg-primary/10 p-3 rounded-lg text-primary">
+                            <span className="material-symbols-outlined text-primary">lightbulb</span>
+                        </div>
+                        <div>
+                            <h3 className="text-slate-900 dark:text-white font-bold mb-1">How to upload for best results</h3>
+                            <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                                Ensure your CSV or PDF contains clear column headers for Date, Description, and Amount.
+                                Multi-page PDF statements are supported.
+                                Our AI will automatically categorize transactions relevant to alimony and child support.
+                            </p>
+                        </div>
+                    </div>
 
-                    <div className="glass-card" style={{ padding: "2rem" }}>
+                    {/* Upload Zone */}
+                    <div className="space-y-4">
                         <form onSubmit={handleUpload}>
-                            {/* Drop zone style file picker */}
                             <label
                                 htmlFor="file-input"
-                                style={{
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    alignItems: "center",
-                                    gap: "0.75rem",
-                                    padding: "2.5rem",
-                                    border: "2px dashed rgba(255,255,255,0.15)",
-                                    borderRadius: "12px",
-                                    cursor: "pointer",
-                                    marginBottom: "1.5rem",
-                                    transition: "border-color 0.2s",
-                                    color: file ? "#22c55e" : "var(--text-muted, #aaa)",
-                                }}
+                                className={`border-2 border-dashed ${file ? 'border-primary' : 'border-primary/30'} rounded-xl p-12 flex flex-col items-center justify-center gap-4 hover:border-primary transition-colors cursor-pointer group bg-background-light dark:bg-[#1A1C23]/60`}
                             >
-                                <span className="material-symbols-outlined" style={{ fontSize: "2.5rem" }}>
-                                    upload_file
-                                </span>
-                                <span style={{ fontSize: "0.9rem", textAlign: "center" }}>
-                                    {file
-                                        ? file.name
-                                        : "Click to choose a CSV or PDF file"}
-                                </span>
+                                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                    <span className="material-symbols-outlined text-3xl text-primary">upload_file</span>
+                                </div>
+                                <div className="text-center">
+                                    <h4 className="text-xl font-bold text-slate-900 dark:text-white">
+                                        {file ? file.name : "Drag and drop bank statements"}
+                                    </h4>
+                                    <p className="text-slate-500 dark:text-slate-400 mt-1">
+                                        {file ? "File selected. Click to change." : "Support for CSV and PDF files. Max file size 20MB."}
+                                    </p>
+                                </div>
                                 <input
                                     id="file-input"
                                     ref={fileRef}
                                     type="file"
                                     accept=".csv,.pdf"
-                                    style={{ display: "none" }}
+                                    className="hidden"
                                     onChange={(e) => setFile(e.target.files[0] || null)}
                                 />
-                            </label>
 
-                            <button
-                                type="submit"
-                                className="btn-primary"
-                                disabled={loading || !file}
-                                style={{ width: "100%" }}
-                            >
-                                {loading ? "Uploading…" : "Upload Statement"}
-                            </button>
+                                <button
+                                    type="submit"
+                                    disabled={loading || !file}
+                                    className="mt-4 px-8 py-3 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20 hover:opacity-90 transition-all disabled:opacity-50"
+                                >
+                                    {loading ? "Processing..." : "Confirm & Extract Transactions"}
+                                </button>
+                            </label>
                         </form>
 
+                        {/* Progress or Status */}
+                        {loading && (
+                            <div className="bg-slate-50 dark:bg-background-dark border border-primary/10 rounded-xl p-5 space-y-4 shadow-lg">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <span className="material-symbols-outlined text-primary animate-spin">sync</span>
+                                        <div>
+                                            <p className="text-sm font-bold">{file?.name}</p>
+                                            <p className="text-xs text-slate-500">Processing transactions via Gemini API...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="w-full bg-slate-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                                    <div className="bg-primary h-full w-full rounded-full animate-pulse shadow-[0_0_8px_rgba(16,183,72,0.5)]"></div>
+                                </div>
+                            </div>
+                        )}
+
                         {status && (
-                            <p
-                                style={{
-                                    marginTop: "1.25rem",
-                                    padding: "0.75rem 1rem",
-                                    borderRadius: "8px",
-                                    fontSize: "0.875rem",
-                                    background:
-                                        status.type === "success"
-                                            ? "rgba(34,197,94,0.1)"
-                                            : "rgba(239,68,68,0.1)",
-                                    color: status.type === "success" ? "#22c55e" : "#ef4444",
-                                    border: `1px solid ${status.type === "success"
-                                            ? "rgba(34,197,94,0.3)"
-                                            : "rgba(239,68,68,0.3)"
-                                        }`,
-                                }}
-                            >
+                            <div className={`mt-4 p-4 rounded-xl text-sm border ${status.type === 'success' ? 'bg-green-500/10 border-green-500/30 text-green-500' : 'bg-red-500/10 border-red-500/30 text-red-500'}`}>
                                 {status.message}
-                            </p>
+                            </div>
                         )}
                     </div>
-
-                    <p style={{ marginTop: "1rem", fontSize: "0.8rem", color: "var(--text-muted, #aaa)" }}>
-                        Supported formats: CSV (with Date, Description, Amount columns) or PDF bank statements.
-                        After upload you'll be redirected to the Dashboard automatically.
-                    </p>
                 </div>
             </main>
         </div>

@@ -1,5 +1,4 @@
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import "../styles/charts.css";
 
 // Palette that fits the existing dark-green design
 const COLORS = ["#22c55e", "#4ade80", "#86efac", "#6366f1", "#f59e0b", "#ef4444", "#06b6d4"];
@@ -19,12 +18,12 @@ export default function CategoryChart({ categoryTotals = {} }) {
   const isEmpty = data.length === 0;
 
   return (
-    <div className="glass-card">
-      <h4 className="category-title">Category Distribution</h4>
+    <div className="flex flex-col h-full w-full">
+      <h4 className="text-lg font-bold text-white mb-6">Category Distribution</h4>
 
-      <div className="category-chart-container">
+      <div className="flex-1 w-full min-h-[220px]">
         {isEmpty ? (
-          <p style={{ color: "var(--text-muted, #aaa)", padding: "2rem 0", textAlign: "center" }}>
+          <p className="text-slate-400 text-center py-8">
             No categories yet. Upload a statement to see distribution.
           </p>
         ) : (
@@ -59,7 +58,7 @@ export default function CategoryChart({ categoryTotals = {} }) {
                 iconType="circle"
                 iconSize={9}
                 formatter={(name) => (
-                  <span style={{ color: "#ccc", fontSize: "0.78rem" }}>{name}</span>
+                  <span className="text-slate-300 text-xs ml-1">{name}</span>
                 )}
               />
             </PieChart>

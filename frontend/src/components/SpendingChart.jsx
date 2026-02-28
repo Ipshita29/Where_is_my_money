@@ -7,7 +7,6 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import "../styles/charts.css";
 
 export default function SpendingChart({ monthlySpending = {} }) {
   // Convert object { "2025-01": 1200 } → sorted array for Recharts
@@ -21,17 +20,20 @@ export default function SpendingChart({ monthlySpending = {} }) {
   const isEmpty = data.length === 0;
 
   return (
-    <div className="glass-card">
-      <div className="chart-header">
-        <h4>Spending Overview</h4>
-        <span style={{ fontSize: "0.75rem", color: "var(--text-muted, #aaa)" }}>
+    <div className="flex flex-col h-full w-full">
+      <div className="flex items-center justify-between mb-6">
+        <h4 className="text-lg font-bold text-white flex items-center gap-2">
+          <span className="material-symbols-outlined text-primary">analytics</span>
+          Spending Overview
+        </h4>
+        <span className="text-xs font-normal text-slate-400">
           Monthly
         </span>
       </div>
 
-      <div className="chart-container">
+      <div className="flex-1 w-full min-h-[220px]">
         {isEmpty ? (
-          <p style={{ color: "var(--text-muted, #aaa)", padding: "2rem 0", textAlign: "center" }}>
+          <p className="text-slate-400 text-center py-8">
             No transaction data yet. Upload a statement to see your spending trend.
           </p>
         ) : (
