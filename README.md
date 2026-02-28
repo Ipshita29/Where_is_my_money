@@ -1,4 +1,4 @@
-# 💸 Where Is My Money?
+# Where Is My Money?
 > A personal finance anomaly detector that helps you understand where your money actually goes.
 
 Where Is My Money? is a smart, lightweight tool that analyzes your bank statements, auto-categorizes your spending, detects unusual financial patterns, and generates friendly, AI-based explanations for suspicious transactions.
@@ -43,14 +43,14 @@ This system transforms raw transaction data into *actionable financial awareness
 
 ## 🧠 Features
 
-- 📂 **Upload CSV/PDF** bank statements  
-- 🔍 **Rule-based + LLM-based categorization**  
-- 📊 **Anomaly detection engine**  
-- ⚠️ **Explainable risk scoring**  
-- 📈 **Recharts timeline visualization**  
-- 🤖 **LLM-based explanation generator**  
-- 💾 **SQLite storage for transactions**  
-- 🧼 **Clean React UI (no Tailwind)**  
+-  **Upload CSV/PDF** bank statements  
+-  **Rule-based + LLM-based categorization**  
+-  **Anomaly detection engine**  
+-  **Explainable risk scoring**  
+-  **Recharts timeline visualization**  
+-  **LLM-based explanation generator**  
+-  **SQLite storage for transactions**  
+-  **Clean React UI (no Tailwind)**  
 
 ---
 
