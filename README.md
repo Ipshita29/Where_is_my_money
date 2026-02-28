@@ -76,64 +76,13 @@ User → Frontend → Backend → ML/LLM → Database → Insights Response
 6. UI visualizes everything  
 
 ### **Architecture Diagram**
-+-----------------------+
-|   CSV / PDF Upload    |
-+----------+------------+
-           |
-           v
-+------------------------------+
-|   Parsing Layer (CSV/PDF)    |
-+------------------------------+
-           |
-           v
-+----------------------------------------------+
-| Categorization Engine                        |
-| - Keyword-based rules                        |
-| - UPI pattern detection                      |
-| - LLM-based merchant classification          |
-+----------------------------------------------+
-           |
-           v
-+----------------------------------------------+
-| Anomaly Detection Engine                      |
-| - Amount outliers                             |
-| - Frequency spikes                            |
-| - New merchant detection                      |
-| - Behavioral shifts                           |
-+----------------------------------------------+
-           |
-           v
-+----------------------------------------------+
-| Risk Scoring + LLM Explanation Generator     |
-+----------------------------------------------+
-           |
-           v
-+-----------------------------+
-|     SQLite Database         |
-+-----------------------------+
-           |
-           v
-+-----------------------------+
-|     React Frontend UI       |
-|  Dashboard | Timeline | AI  |
-+-----------------------------+
+![Architecture Diagram](docs/architecture.png)
 
----
 
 # **5. Database Design**
 
 ### **ER Diagram**
-+---------------------+           +---------------------+
-|     TRANSACTIONS    | 1       M |      ANOMALIES      |
-+---------------------+-----------+---------------------+
-| id (PK)             |           | id (PK)             |
-| date                |           | transaction_id (FK) |
-| merchant            |           | risk_score          |
-| amount              |           | flags               |
-| category            |           | explanation         |
-| description         |           | timestamp           |
-| type                |           +---------------------+
-+---------------------+
+![ER Diagram](docs/er-diagram.png)
 
 ### **ER Diagram Description**
 - **Users**: stores identity  
