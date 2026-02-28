@@ -1,31 +1,48 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import { GoogleGenAI } from "@google/genai";
+
+dotenv.config();
 
 const app = express();
-
-// Ensure uploads directory exists
-const uploadDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-require('./utils/db');
-
 app.use(cors());
 app.use(express.json());
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/upload', require('./routes/upload'));
-app.use('/api/transactions', require('./routes/transactions'));
 
-app.get('/', (req, res) => {
-  res.send('MIDDLEWARE WORKING');
+const ai = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY,
 });
 
+app.post("/analyze", async (req, res) => {
+  try {
+    const { transactions } = req.body;
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+    const prompt = `
+    You are a smart financial advisor.
+
+    Analyze these transactions:
+    ${JSON.stringify(transactions, null, 2)}
+
+    Provide:
+    - Spending insights
+    - Bad habits
+    - Savings recommendations
+    `;
+
+    const response = await ai.models.generateContent({
+      model: "gemini-1.5-flash",
+      contents: prompt,
+    });
+
+    res.json({ analysis: response.text });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "AI analysis failed" });
+  }
 });
+
+app.listen(5000, () => {
+  console.log("Server running on http://localhost:5000");
+});
+
