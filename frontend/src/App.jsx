@@ -1,14 +1,10 @@
-import Sidebar from "./components/Sidebar";
 import Dashboard from "./pages/Dashboard";
-import "./styles/dashboard.css";
+import "./index.css";
+import "./styles/variables.css";
+import "./styles/layout.css";
 
 function App() {
-  return (
-    <div className="app-container">
-      <Sidebar />
-      <Dashboard />
-    </div>
-  );
+  return <Dashboard />;
 }
 
 export default App;
