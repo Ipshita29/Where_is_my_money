@@ -42,5 +42,16 @@ exports.categorizeMerchant = (merchant) => {
         return 'UPI';
     }
 
+    // LEGAL & FAMILY (Prioritize these to avoid "Other" or false positives)
+    if (m.includes('alimony') || m.includes('spousal support')) {
+        return 'Alimony';
+    }
+    if (m.includes('child support') || m.includes('kid support') || m.includes('nanny') || m.includes('school fee')) {
+        return 'Child Support';
+    }
+    if (m.includes('attorney') || m.includes('legal') || m.includes('lawyer') || m.includes('court')) {
+        return 'Legal';
+    }
+
     return 'Other';
 };
