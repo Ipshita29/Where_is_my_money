@@ -6,6 +6,7 @@ import CashflowSankey from "../components/CashflowSankey";
 import DailySpendingBar from "../components/DailySpendingBar";
 import AnomaliesSection from "../components/AnomaliesSection";
 import RecentTransactionsTable from "../components/RecentTransactionsTable";
+import FinanceAIChat from "../components/FinanceAIChat";
 
 import { api } from "../services/api";
 
@@ -100,6 +101,7 @@ export default function Dashboard({ dateRange, onDateRangeChange }) {
             </div>
           </div>
         )}
+        <FinanceAIChat />
       </main>
     </div>
   );

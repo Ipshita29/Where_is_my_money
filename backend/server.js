@@ -23,6 +23,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/upload', require('./routes/upload'));
 app.use('/api/transactions', require('./routes/transactions'));
 app.use('/api/anomalies', require('./routes/anomalies'));
+app.use('/api/chat', require('./routes/chat'));
 
 // AI Analysis Endpoint (Incorporated from remote change)
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
