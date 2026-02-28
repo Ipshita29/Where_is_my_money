@@ -1,0 +1,16 @@
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 14px;
+  width: 220px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+
+.card h4 {
+  opacity: 0.7;
+}
+
+.card h2 {
+  font-size: 26px;
+  margin-top: 8px;
+}
