@@ -1,7 +1,7 @@
 const fs = require('fs');
 const csv = require('csv-parser');
 const db = require('../utils/db');
-const pdf = require('pdf-parse'); // v1.1.1 — simple async function API
+const PDFParser = require('pdf2json');
 const path = require('path');
 
 const { categorizeMerchant } = require('../services/categorize');
@@ -38,12 +38,25 @@ exports.uploadStatement = async (req, res) => {
             });
         }
 
-        // Bulk insert via serialize
+        // Bulk insert via serialize, but FIRST delete old ones
         let imported = 0;
         let failed = 0;
 
         await new Promise((resolve, reject) => {
             db.serialize(() => {
+                // 1. Delete old transactions and anomalies
+                db.run(`DELETE FROM dismissed_anomalies WHERE user_id = ?`, [userId]);
+                db.run(`DELETE FROM anomalies WHERE transaction_id IN (SELECT id FROM transactions WHERE user_id = ?)`, [userId]);
+                db.run(`DELETE FROM transactions WHERE user_id = ?`, [userId], (err) => {
+                    if (err) console.error("Error clearing old transactions:", err.message);
+                });
+
+                // 2. Update active file
+                db.run(`UPDATE users SET active_file = ? WHERE id = ?`, [req.file.originalname, userId], (err) => {
+                    if (err) console.error("Error updating active file:", err.message);
+                });
+
+                // 3. Insert new transactions
                 const stmt = db.prepare(`
                     INSERT INTO transactions
                     (user_id, date, merchant, amount, description, type, category)
@@ -133,72 +146,60 @@ const parseCSV = (filePath) => {
 };
 
 // ─── PDF Parser ───────────────────────────────────────────────────────────────
-const parsePDF = async (filePath) => {
-    const dataBuffer = fs.readFileSync(filePath);
-    const data = await pdf(dataBuffer);   // pdf-parse v1 simple API
-    const text = data.text;
+const parsePDF = (filePath) => {
+    return new Promise((resolve, reject) => {
+        const parser = new PDFParser(this, 1);
+        const transactions = [];
 
-    const transactions = [];
-    const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+        parser.on('pdfParser_dataError', errData => {
+            reject(new Error(errData.parserError));
+        });
 
-    // Multiple regex patterns to cover different bank statement formats
-    const patterns = [
-        // Pattern 1: YYYY-MM-DD  Description  -1234.56
-        /^(\d{4}-\d{2}-\d{2})\s+(.+?)\s+(-?\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?)\s*$/,
-        // Pattern 2: DD/MM/YYYY  Description  -1234.56
-        /^(\d{2}\/\d{2}\/\d{4})\s+(.+?)\s+(-?\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?)\s*$/,
-        // Pattern 3: MM/DD/YYYY  Description  Amount
-        /^(\d{2}\/\d{2}\/\d{4})\s+(.+?)\s+(-?\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?)\s*$/,
-        // Pattern 4: DD MMM YYYY  Description  1,234.56 (with optional Dr/Cr at end)
-        /^(\d{2}\s(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s\d{4})\s+(.+?)\s+(-?\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?)(?:\s+(?:Dr|Cr))?\s*$/i,
-    ];
+        parser.on('pdfParser_dataReady', pdfData => {
+            const tempText = parser.getRawTextContent();
 
-    lines.forEach(line => {
-        for (const pattern of patterns) {
-            const match = line.match(pattern);
-            if (match) {
-                const [, dateStr, description, amountStr] = match;
-                const amount = parseFloat(amountStr.replace(/,/g, ''));
-                if (!isNaN(amount)) {
-                    transactions.push({
-                        date: normalizeDate(dateStr),
-                        merchant: description.trim(),
-                        amount: amount,
-                        description: description.trim(),
-                        type: amount < 0 ? 'debit' : 'credit',
-                        category: categorizeMerchant(description.trim())
-                    });
-                    break; // matched, stop trying other patterns
+            const lines = tempText
+                .split('\n')
+                .map(l => l.replace(/\s+/g, ' ').trim())
+                .filter(Boolean);
+
+            /*
+            Handles formats like:
+            2026-02-14 Netflix Subscription -649 Debit 69,452
+            2026-02-28 Freelance Payment +12000 Credit 53,003
+            */
+
+            // Regex looks for: Date (YYYY-MM-DD), merchant string, amount (can have +/- and commas), Debit/Credit
+            const txnRegex = /^(\d{4}-\d{2}-\d{2})\s+(.+?)\s+([+-]?[\d,]+)\s+(Debit|Credit)/i;
+
+            lines.forEach(line => {
+                const match = line.match(txnRegex);
+                if (!match) return;
+
+                const [, dateStr, description, amountStr, drcr] = match;
+
+                let amount = parseFloat(amountStr.replace(/,/g, '').replace(/\+/g, ''));
+
+                // Some banks just provide positive numbers and use Debit/Credit flags
+                // If the number itself isn't already negative and it's a debit, make it negative
+                if (drcr.toLowerCase() === 'debit' && amount > 0) {
+                    amount = -amount;
                 }
-            }
-        }
+
+                transactions.push({
+                    date: dateStr, // already YYYY-MM-DD
+                    merchant: description.trim(),
+                    amount,
+                    description: description.trim(),
+                    type: amount < 0 ? 'debit' : 'credit',
+                    category: categorizeMerchant(description)
+                });
+            });
+
+            console.log(`PDF parsed: ${lines.length} lines → ${transactions.length} transactions extracted`);
+            resolve(transactions);
+        });
+
+        parser.loadPDF(filePath);
     });
-
-    console.log(`PDF parsed: ${lines.length} lines → ${transactions.length} transactions extracted`);
-    return transactions;
 };
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-function normalizeDate(raw) {
-    if (!raw) return new Date().toISOString().split('T')[0];
-    raw = raw.trim();
-
-    // Already YYYY-MM-DD
-    if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
-
-    // DD/MM/YYYY → YYYY-MM-DD
-    const dmy = raw.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-    if (dmy) return `${dmy[3]}-${dmy[2]}-${dmy[1]}`;
-
-    // MM/DD/YYYY → YYYY-MM-DD
-    const mdy = raw.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-    if (mdy) return `${mdy[3]}-${mdy[1]}-${mdy[2]}`;
-
-    // Try native Date parse as fallback
-    try {
-        const d = new Date(raw);
-        if (!isNaN(d)) return d.toISOString().split('T')[0];
-    } catch (_) { }
-
-    return new Date().toISOString().split('T')[0];
-}

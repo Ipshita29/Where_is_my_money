@@ -2,8 +2,19 @@ const db = require('../utils/db');
 
 exports.listTransactions = (req, res) => {
     const userId = req.user.id;
+    const { startDate, endDate } = req.query;
 
-    db.all('SELECT * FROM transactions WHERE user_id = ? ORDER BY date DESC', [userId], (err, rows) => {
+    let query = 'SELECT * FROM transactions WHERE user_id = ?';
+    const params = [userId];
+
+    if (startDate && endDate) {
+        query += ' AND date BETWEEN ? AND ?';
+        params.push(startDate, endDate);
+    }
+
+    query += ' ORDER BY date DESC';
+
+    db.all(query, params, (err, rows) => {
         if (err) {
             console.error('Database Error:', err);
             return res.status(500).json({ error: 'Failed to fetch transactions' });
@@ -14,18 +25,29 @@ exports.listTransactions = (req, res) => {
 
 exports.getSummary = (req, res) => {
     const userId = req.user.id;
+    const { startDate, endDate } = req.query;
 
-    db.all('SELECT * FROM transactions WHERE user_id = ?', [userId], (err, rows) => {
+    let query = 'SELECT * FROM transactions WHERE user_id = ?';
+    const params = [userId];
+
+    if (startDate && endDate) {
+        query += ' AND date BETWEEN ? AND ?';
+        params.push(startDate, endDate);
+    }
+
+    // First fetch transactions to calculate summary
+    db.all(query, params, (err, rows) => {
         if (err) {
             console.error('Database Error:', err);
-            return res.status(500).json({ error: 'Failed to fetch summary' });
+            return res.status(500).json({ error: 'Failed to fetch summary transactions' });
         }
 
         const summary = {
             totalSpent: 0,
             totalCredited: 0,
             categoryTotals: {},
-            monthlySpending: {}
+            monthlySpending: {},
+            activeFile: null
         };
 
         rows.forEach(txn => {
@@ -49,6 +71,32 @@ exports.getSummary = (req, res) => {
             }
         });
 
-        res.json(summary);
+        // Also fetch the user's active file to display in the header
+        db.get('SELECT active_file FROM users WHERE id = ?', [userId], (err, userRow) => {
+            if (err) console.error("Failed to fetch active file:", err.message);
+            if (userRow) summary.activeFile = userRow.active_file;
+
+            res.json(summary);
+        });
+    });
+};
+
+exports.clearTransactions = (req, res) => {
+    const userId = req.user.id;
+
+    db.serialize(() => {
+        db.run('DELETE FROM dismissed_anomalies WHERE user_id = ?', [userId]);
+        db.run('DELETE FROM anomalies WHERE transaction_id IN (SELECT id FROM transactions WHERE user_id = ?)', [userId]);
+        db.run('DELETE FROM transactions WHERE user_id = ?', [userId], function (err) {
+            if (err) {
+                console.error('Database Error:', err);
+                return res.status(500).json({ error: 'Failed to clear transactions' });
+            }
+
+            db.run('UPDATE users SET active_file = NULL WHERE id = ?', [userId], (updateErr) => {
+                if (updateErr) console.error('Error clearing active file:', updateErr);
+                res.json({ message: 'All transactions cleared.', deletedCount: this.changes });
+            });
+        });
     });
 };
