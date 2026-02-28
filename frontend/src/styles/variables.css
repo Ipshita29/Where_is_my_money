@@ -1,0 +1,15 @@
+:root {
+  --primary: #22c55e;
+  --background-dark: #0a110c;
+  --surface-dark: rgba(25, 40, 30, 0.4);
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+  --border-color: rgba(34, 197, 94, 0.1);
+  --glass-bg: rgba(34, 197, 94, 0.03);
+
+  --green-light: rgba(34, 197, 94, 0.1);
+  --green-medium: rgba(34, 197, 94, 0.4);
+  --danger-red: #ef4444;
+  --danger-orange: #fb923c;
+  --card-bg: rgba(255, 255, 255, 0.02);
+}

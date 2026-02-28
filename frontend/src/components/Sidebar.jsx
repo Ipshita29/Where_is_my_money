@@ -2,31 +2,31 @@ import "../styles/sidebar.css";
 
 export default function Sidebar() {
   return (
-    <div className="sidebar">
-      <h2 className="logo">Where Is My Money?</h2>
-
-      <div className="menu">
-        <p className="menu-title">NAVIGATION</p>
-        <button className="menu-btn active">Dashboard</button>
-        <button className="menu-btn">Analytics</button>
-        <button className="menu-btn">Reports</button>
-        <button className="menu-btn">Support</button>
+    <aside className="sidebar">
+      <div className="sidebar-header">
+        <h1 className="logo-text">Where Is My Money?</h1>
+        <p className="logo-subtext">Personal Finance AI</p>
       </div>
 
-      <div className="settings">
-        <button className="menu-btn small">Settings</button>
-        <div className="user-info">
-          <img
-            src="https://i.pravatar.cc/40"
-            className="avatar"
-            alt="user"
-          />
-          <div>
-            <p className="u-name">User</p>
-            <small className="u-id">#2024</small>
-          </div>
-        </div>
-      </div>
-    </div>
+      <nav className="nav-links">
+        <a className="nav-item active">
+          <span className="material-symbols-outlined"></span>Dashboard
+        </a>
+
+        <a className="nav-item">
+          <span className="material-symbols-outlined"></span>Transactions
+        </a>
+
+        <a className="nav-item">
+          <span className="material-symbols-outlined"></span>Anomalies
+        </a>
+
+        <a className="nav-item">
+          <span className="material-symbols-outlined"></span>Upload
+        </a>
+      </nav>
+
+  
+    </aside>
   );
 }
