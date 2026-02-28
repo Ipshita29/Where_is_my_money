@@ -1,21 +1,38 @@
-import express from "express";
-import cors from "cors";
-import dotenv from "dotenv";
-import { GoogleGenAI } from "@google/genai";
-
-dotenv.config();
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const app = express();
+
+// Ensure uploads directory exists
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+require('./utils/db');
+
 app.use(cors());
 app.use(express.json());
 
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY,
-});
+// Routes
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/upload', require('./routes/upload'));
+app.use('/api/transactions', require('./routes/transactions'));
+app.use('/api/anomalies', require('./routes/anomalies'));
+
+// AI Analysis Endpoint (Incorporated from remote change)
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 app.post("/analyze", async (req, res) => {
   try {
     const { transactions } = req.body;
+    if (!transactions) return res.status(400).json({ error: "No transactions provided" });
+
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `
     You are a smart financial advisor.
@@ -29,20 +46,21 @@ app.post("/analyze", async (req, res) => {
     - Savings recommendations
     `;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
-      contents: prompt,
-    });
-
-    res.json({ analysis: response.text });
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    res.json({ analysis: response.text() });
 
   } catch (error) {
-    console.error(error);
+    console.error('AI Analysis Error:', error);
     res.status(500).json({ error: "AI analysis failed" });
   }
 });
 
-app.listen(5000, () => {
-  console.log("Server running on http://localhost:5000");
+app.get('/', (req, res) => {
+  res.send('SERVER WORKING');
 });
 
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});

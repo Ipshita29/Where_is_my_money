@@ -5,6 +5,7 @@ const pdf = require('pdf-parse');
 const path = require('path');
 
 const { categorizeMerchant } = require('../services/categorize');
+const { detectAnomalies } = require('../services/anomaly');
 
 exports.uploadStatement = async (req, res) => {
     if (!req.file) {
@@ -54,8 +55,35 @@ exports.uploadStatement = async (req, res) => {
                     console.error('Statement Finalization Error:', err);
                     return res.status(500).json({ error: 'Database error during import' });
                 }
+
+                // Anomaly Detection: Fetch recent transactions for this user to detect patterns
+                db.all('SELECT * FROM transactions WHERE user_id = ? ORDER BY created_at DESC LIMIT ?',
+                    [userId, transactions.length + 50], (err, rows) => {
+                        if (err) {
+                            console.error('Fetch for Anomaly Error:', err);
+                        } else {
+                            const detected = detectAnomalies(rows);
+                            if (detected.length > 0) {
+                                const anomalyStmt = db.prepare(`
+                                INSERT INTO anomalies (transaction_id, anomaly_type, risk_score, explanation)
+                                VALUES (?, ?, ?, ?)
+                            `);
+                                detected.forEach(a => {
+                                    // Check if anomaly already exists for this transaction to avoid duplicates
+                                    db.get('SELECT id FROM anomalies WHERE transaction_id = ? AND anomaly_type = ?',
+                                        [a.transaction_id, a.anomaly_type], (err, exists) => {
+                                            if (!exists) {
+                                                anomalyStmt.run(a.transaction_id, a.anomaly_type, a.risk_score, a.explanation);
+                                            }
+                                        });
+                                });
+                                // We don't wait for anomalyStmt.finalize for the response to keep it fast
+                            }
+                        }
+                    });
+
                 res.json({
-                    message: 'Transactions imported successfully',
+                    message: 'Transactions imported successfully. Anomaly detection running.',
                     imported: transactions.length - errors,
                     failed: errors
                 });
