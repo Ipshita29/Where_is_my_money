@@ -1,7 +1,7 @@
 const fs = require('fs');
 const csv = require('csv-parser');
 const db = require('../utils/db');
-const pdf = require('pdf-parse');
+const pdf = require('pdf-parse'); // v1.1.1 — simple async function API
 const path = require('path');
 
 const { categorizeMerchant } = require('../services/categorize');
@@ -23,96 +23,108 @@ exports.uploadStatement = async (req, res) => {
         } else if (fileExt === '.pdf') {
             transactions = await parsePDF(filePath);
         } else {
-            return res.status(400).json({ error: 'Unsupported file format. Use CSV or PDF.' });
+            // Clean up file and reject
+            fs.unlink(filePath, () => { });
+            return res.status(400).json({ error: 'Unsupported file format. Please upload a CSV or PDF.' });
         }
+
+        // Clean up uploaded temp file
+        fs.unlink(filePath, () => { });
 
         if (transactions.length === 0) {
-            return res.json({ message: 'No transactions found in file', imported: 0 });
+            return res.json({
+                message: 'No transactions could be extracted from this file. Please check the format.',
+                imported: 0
+            });
         }
 
-        db.serialize(() => {
-            const stmt = db.prepare(`
-                INSERT INTO transactions
-                (user_id, date, merchant, amount, description, type, category)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-            `);
+        // Bulk insert via serialize
+        let imported = 0;
+        let failed = 0;
 
-            let errors = 0;
-            transactions.forEach(txn => {
-                stmt.run(
-                    [userId, txn.date, txn.merchant, txn.amount, txn.description, txn.type, txn.category],
-                    (err) => {
-                        if (err) {
-                            console.error('Database Insertion Error:', err);
-                            errors++;
-                        }
-                    }
-                );
-            });
+        await new Promise((resolve, reject) => {
+            db.serialize(() => {
+                const stmt = db.prepare(`
+                    INSERT INTO transactions
+                    (user_id, date, merchant, amount, description, type, category)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                `);
 
-            stmt.finalize((err) => {
-                if (err) {
-                    console.error('Statement Finalization Error:', err);
-                    return res.status(500).json({ error: 'Database error during import' });
-                }
-
-                // Anomaly Detection: Fetch recent transactions for this user to detect patterns
-                db.all('SELECT * FROM transactions WHERE user_id = ? ORDER BY created_at DESC LIMIT ?',
-                    [userId, transactions.length + 50], (err, rows) => {
-                        if (err) {
-                            console.error('Fetch for Anomaly Error:', err);
-                        } else {
-                            const detected = detectAnomalies(rows);
-                            if (detected.length > 0) {
-                                const anomalyStmt = db.prepare(`
-                                INSERT INTO anomalies (transaction_id, anomaly_type, risk_score, explanation)
-                                VALUES (?, ?, ?, ?)
-                            `);
-                                detected.forEach(a => {
-                                    // Check if anomaly already exists for this transaction to avoid duplicates
-                                    db.get('SELECT id FROM anomalies WHERE transaction_id = ? AND anomaly_type = ?',
-                                        [a.transaction_id, a.anomaly_type], (err, exists) => {
-                                            if (!exists) {
-                                                anomalyStmt.run(a.transaction_id, a.anomaly_type, a.risk_score, a.explanation);
-                                            }
-                                        });
-                                });
-                                // We don't wait for anomalyStmt.finalize for the response to keep it fast
+                transactions.forEach(txn => {
+                    stmt.run(
+                        [userId, txn.date, txn.merchant, txn.amount, txn.description, txn.type, txn.category],
+                        (err) => {
+                            if (err) {
+                                console.error('Insert error:', err.message);
+                                failed++;
+                            } else {
+                                imported++;
                             }
                         }
-                    });
+                    );
+                });
 
-                res.json({
-                    message: 'Transactions imported successfully. Anomaly detection running.',
-                    imported: transactions.length - errors,
-                    failed: errors
+                stmt.finalize((err) => {
+                    if (err) {
+                        console.error('Finalize error:', err.message);
+                        return reject(err);
+                    }
+                    resolve();
                 });
             });
         });
 
+        return res.json({
+            message: 'Transactions imported successfully',
+            imported,
+            failed,
+            total: transactions.length
+        });
+
     } catch (err) {
-        console.error('Upload Processing Error details:', err);
-        res.status(500).json({ error: 'Failed to process file: ' + err.message });
+        // Clean up uploaded file on error
+        fs.unlink(filePath, () => { });
+        console.error('Upload error:', err.message);
+        return res.status(500).json({ error: `Failed to process file: ${err.message}` });
     }
 };
 
+// ─── CSV Parser ───────────────────────────────────────────────────────────────
 const parseCSV = (filePath) => {
     return new Promise((resolve, reject) => {
         const results = [];
+
         fs.createReadStream(filePath)
             .pipe(csv())
             .on('data', (row) => {
-                const amount = parseFloat(
-                    row.Amount || row.amount || row.Debit || row.Credit || 0
-                );
-                const merchant = row.Description || row.Narration || row.Remarks || 'Unknown';
+                // Support multiple common CSV column name styles
+                const rawAmount =
+                    row.Amount || row.amount ||
+                    row.Debit || row.debit ||
+                    row.Credit || row.credit || 0;
+
+                const amount = parseFloat(String(rawAmount).replace(/[^0-9.\-]/g, '')) || 0;
+
+                const merchant =
+                    row.Description || row.description ||
+                    row.Merchant || row.merchant ||
+                    row.Narration || row.narration ||
+                    row.Remarks || row.remarks ||
+                    row.Payee || row.payee || 'Unknown';
+
+                const date =
+                    row.Date || row.date ||
+                    row['Transaction Date'] ||
+                    row['Value Date'] ||
+                    new Date().toISOString().split('T')[0];
+
                 results.push({
-                    date: row.Date || row.date || new Date().toISOString().split('T')[0],
-                    merchant: merchant,
+                    date: normalizeDate(date),
+                    merchant: String(merchant).trim(),
                     amount: amount,
-                    description: row.Description || '',
+                    description: String(merchant).trim(),
                     type: amount < 0 ? 'debit' : 'credit',
-                    category: categorizeMerchant(merchant)
+                    category: categorizeMerchant(String(merchant))
                 });
             })
             .on('error', reject)
@@ -120,47 +132,73 @@ const parseCSV = (filePath) => {
     });
 };
 
+// ─── PDF Parser ───────────────────────────────────────────────────────────────
 const parsePDF = async (filePath) => {
-    // Note: PDF parsing is highly dependent on the PDF's structure.
-    // This implementation is a basic attempt and may require significant
-    // refinement and testing for different bank statement formats.
-    try {
-        const dataBuffer = fs.readFileSync(filePath);
-        const data = await pdf(dataBuffer);
-        const text = data.text;
-        const transactions = [];
+    const dataBuffer = fs.readFileSync(filePath);
+    const data = await pdf(dataBuffer);   // pdf-parse v1 simple API
+    const text = data.text;
 
-        // Improved regex for common statement formats: Date Description Amount
-        // Example: 2025-02-01 Walmart -50.00
-        const lines = text.split('\n');
-        const dateRegex = /^(\d{4}-\d{2}-\d{2})|(\d{2}\/\d{2}\/\d{4})/;
-        const amountRegex = /\s(-?\d+\.\d{2})$/;
+    const transactions = [];
+    const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
 
-        lines.forEach(line => {
-            const dateMatch = line.trim().match(dateRegex);
-            const amountMatch = line.trim().match(amountRegex);
+    // Multiple regex patterns to cover different bank statement formats
+    const patterns = [
+        // Pattern 1: YYYY-MM-DD  Description  -1234.56
+        /^(\d{4}-\d{2}-\d{2})\s+(.+?)\s+(-?\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?)\s*$/,
+        // Pattern 2: DD/MM/YYYY  Description  -1234.56
+        /^(\d{2}\/\d{2}\/\d{4})\s+(.+?)\s+(-?\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?)\s*$/,
+        // Pattern 3: MM/DD/YYYY  Description  Amount
+        /^(\d{2}\/\d{2}\/\d{4})\s+(.+?)\s+(-?\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?)\s*$/,
+        // Pattern 4: DD MMM YYYY  Description  1,234.56 (with optional Dr/Cr at end)
+        /^(\d{2}\s(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s\d{4})\s+(.+?)\s+(-?\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?)(?:\s+(?:Dr|Cr))?\s*$/i,
+    ];
 
-            if (dateMatch && amountMatch) {
-                const date = dateMatch[0];
-                const amountStr = amountMatch[1]; // Use capturing group
-                const amount = parseFloat(amountStr);
-
-                let description = line.trim().replace(date, '').replace(amountStr, '').trim();
-
-                transactions.push({
-                    date: date,
-                    merchant: description || 'Unknown',
-                    amount: amount,
-                    description: description,
-                    type: amount < 0 ? 'debit' : 'credit',
-                    category: categorizeMerchant(description)
-                });
+    lines.forEach(line => {
+        for (const pattern of patterns) {
+            const match = line.match(pattern);
+            if (match) {
+                const [, dateStr, description, amountStr] = match;
+                const amount = parseFloat(amountStr.replace(/,/g, ''));
+                if (!isNaN(amount)) {
+                    transactions.push({
+                        date: normalizeDate(dateStr),
+                        merchant: description.trim(),
+                        amount: amount,
+                        description: description.trim(),
+                        type: amount < 0 ? 'debit' : 'credit',
+                        category: categorizeMerchant(description.trim())
+                    });
+                    break; // matched, stop trying other patterns
+                }
             }
-        });
+        }
+    });
 
-        return transactions;
-    } catch (err) {
-        console.error('PDF Parse Error:', err);
-        throw new Error('PDF parsing failed: ' + err.message);
-    }
+    console.log(`PDF parsed: ${lines.length} lines → ${transactions.length} transactions extracted`);
+    return transactions;
 };
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+function normalizeDate(raw) {
+    if (!raw) return new Date().toISOString().split('T')[0];
+    raw = raw.trim();
+
+    // Already YYYY-MM-DD
+    if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+
+    // DD/MM/YYYY → YYYY-MM-DD
+    const dmy = raw.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (dmy) return `${dmy[3]}-${dmy[2]}-${dmy[1]}`;
+
+    // MM/DD/YYYY → YYYY-MM-DD
+    const mdy = raw.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (mdy) return `${mdy[3]}-${mdy[1]}-${mdy[2]}`;
+
+    // Try native Date parse as fallback
+    try {
+        const d = new Date(raw);
+        if (!isNaN(d)) return d.toISOString().split('T')[0];
+    } catch (_) { }
+
+    return new Date().toISOString().split('T')[0];
+}

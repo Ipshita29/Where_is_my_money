@@ -1,33 +1,44 @@
 import "../styles/metrics.css";
 
-export default function Metrics() {
+export default function Metrics({ totalSpent = 0, totalCredited = 0, anomalyCount = 0 }) {
+  const fmt = (n) =>
+    n.toLocaleString("en-US", { style: "currency", currency: "USD" });
+
   return (
     <div className="metrics-grid">
       <div className="glass-card metric-card">
         <div className="metric-card-header">
-          <span className="material-symbols-outlined metric-icon">account_balance_wallet</span>
-          <span className="badge badge-green">+2.4%</span>
+          <span className="material-symbols-outlined metric-icon">
+            account_balance_wallet
+          </span>
+          <span className="badge badge-green">Income</span>
         </div>
-        <p className="metric-label">Total Balance</p>
-        <h3 className="metric-value">$42,560.00</h3>
+        <p className="metric-label">Total Credited</p>
+        <h3 className="metric-value">{fmt(totalCredited)}</h3>
       </div>
 
       <div className="glass-card metric-card">
         <div className="metric-card-header">
           <span className="material-symbols-outlined metric-icon">payments</span>
-          <span className="badge badge-red">-12%</span>
+          <span className="badge badge-red">Spending</span>
         </div>
-        <p className="metric-label">Monthly Spending</p>
-        <h3 className="metric-value">$3,842.15</h3>
+        <p className="metric-label">Total Spent</p>
+        <h3 className="metric-value">{fmt(totalSpent)}</h3>
       </div>
 
       <div className="glass-card metric-card">
         <div className="metric-card-header">
-          <span className="material-symbols-outlined metric-icon">crisis_alert</span>
-          <span className="badge badge-orange">Action Needed</span>
+          <span className="material-symbols-outlined metric-icon">
+            crisis_alert
+          </span>
+          <span className={`badge ${anomalyCount > 0 ? "badge-orange" : "badge-green"}`}>
+            {anomalyCount > 0 ? "Action Needed" : "All Clear"}
+          </span>
         </div>
         <p className="metric-label">AI Detected Anomalies</p>
-        <h3 className="metric-value">4 Issues</h3>
+        <h3 className="metric-value">
+          {anomalyCount} {anomalyCount === 1 ? "Issue" : "Issues"}
+        </h3>
       </div>
     </div>
   );
