@@ -37,90 +37,99 @@ export default function Header({ onRefresh, activeFile, dateRange, onDateRangeCh
   };
 
   return (
-    <header className="h-20 border-b border-slate-200 dark:border-primary/20 flex items-center justify-between px-8 bg-background-light/50 dark:bg-background-dark/50 backdrop-blur-md sticky top-0 z-10 w-full">
+    <header className="h-20 glass border-b border-white/5 flex items-center justify-between px-8 sticky top-0 z-30 w-full backdrop-blur-xl">
       <div className="flex items-center gap-6 w-full max-w-2xl">
         <form
-          className="relative w-full max-w-md"
+          className="relative w-full max-w-md group"
           onSubmit={(e) => {
             e.preventDefault();
             alert("Search functionality coming soon!");
           }}
         >
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
-          <input className="w-full pl-10 pr-4 py-2 bg-slate-100 dark:bg-primary/5 border-none rounded-lg focus:ring-2 focus:ring-primary text-sm outline-none text-slate-900 dark:text-white" placeholder="Search transactions, evidence..." type="text" />
+          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors">search</span>
+          <input
+            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/5 rounded-xl focus:ring-2 focus:ring-primary/50 text-sm outline-none text-white placeholder:text-slate-500 transition-all focus:bg-white/10"
+            placeholder="Search records, evidence..."
+            type="text"
+          />
         </form>
 
         <div className="flex items-center gap-2">
           {activeFile && (
-            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-lg border border-primary/20 text-xs font-medium text-primary whitespace-nowrap">
-              <span className="material-symbols-outlined text-[16px]">description</span>
-              <span className="truncate max-w-[150px]">Analyzing: {activeFile}</span>
+            <div className="hidden xl:flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-lg border border-primary/20 text-[10px] font-black text-primary uppercase tracking-widest whitespace-nowrap">
+              <span className="material-symbols-outlined text-[16px]">verified_user</span>
+              <span className="truncate max-w-[150px]">{activeFile}</span>
             </div>
           )}
 
-          <div className="relative group">
+          <div className="relative group/date">
             <button
-              className="flex items-center gap-2 bg-slate-100 dark:bg-primary/5 px-4 py-2 rounded-lg border-none whitespace-nowrap cursor-pointer hover:bg-slate-200 dark:hover:bg-primary/10 transition-colors"
+              className="flex items-center gap-2 bg-white/5 px-4 py-2.5 rounded-xl border border-white/5 whitespace-nowrap cursor-pointer hover:bg-white/10 transition-all hover:border-white/10"
             >
-              <span className="material-symbols-outlined text-sm text-slate-600 dark:text-slate-300">calendar_today</span>
-              <span className="text-sm font-medium text-slate-600 dark:text-slate-300">{formatDateDisplay()}</span>
+              <span className="material-symbols-outlined text-sm text-primary">calendar_today</span>
+              <span className="text-xs font-bold text-slate-300 uppercase tracking-tight">{formatDateDisplay()}</span>
             </button>
-            <div className="absolute top-full mt-2 left-0 bg-white dark:bg-[#1A1C23] border border-slate-200 dark:border-primary/20 rounded-xl shadow-xl p-4 hidden group-hover:block z-50 min-w-[300px]">
-              <div className="flex flex-col gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-500 mb-1">Start Date</label>
-                  <input
-                    type="date"
-                    className="w-full p-2 rounded bg-slate-100 dark:bg-black/20 border border-slate-200 dark:border-white/10 text-sm outline-none focus:border-primary"
-                    value={dateRange?.start || ""}
-                    onChange={(e) => onDateRangeChange && onDateRangeChange({ ...dateRange, start: e.target.value })}
-                  />
+            <div className="absolute top-full mt-2 left-0 glass-dark border border-white/10 rounded-2xl shadow-2xl p-5 hidden group-hover/date:block z-50 min-w-[320px] animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="flex flex-col gap-5">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-black text-white uppercase tracking-widest">Filter Range</h3>
+                  <button
+                    className="text-[10px] font-black text-primary hover:text-white uppercase tracking-widest transition-colors"
+                    onClick={() => onDateRangeChange && onDateRangeChange({ start: "", end: "" })}
+                  >
+                    Reset
+                  </button>
                 </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-500 mb-1">End Date</label>
-                  <input
-                    type="date"
-                    className="w-full p-2 rounded bg-slate-100 dark:bg-black/20 border border-slate-200 dark:border-white/10 text-sm outline-none focus:border-primary"
-                    value={dateRange?.end || ""}
-                    onChange={(e) => onDateRangeChange && onDateRangeChange({ ...dateRange, end: e.target.value })}
-                  />
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Start</label>
+                    <input
+                      type="date"
+                      className="w-full p-2.5 rounded-xl bg-black/40 border border-white/5 text-xs outline-none focus:border-primary text-white transition-all"
+                      value={dateRange?.start || ""}
+                      onChange={(e) => onDateRangeChange && onDateRangeChange({ ...dateRange, start: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">End</label>
+                    <input
+                      type="date"
+                      className="w-full p-2.5 rounded-xl bg-black/40 border border-white/5 text-xs outline-none focus:border-primary text-white transition-all"
+                      value={dateRange?.end || ""}
+                      onChange={(e) => onDateRangeChange && onDateRangeChange({ ...dateRange, end: e.target.value })}
+                    />
+                  </div>
                 </div>
-                <button
-                  className="text-xs text-primary hover:underline self-end"
-                  onClick={() => onDateRangeChange && onDateRangeChange({ start: "", end: "" })}
-                >
-                  Clear Range
-                </button>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
         {onRefresh && (
-          <button className="size-10 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-primary/5 hover:bg-slate-200 dark:hover:bg-primary/10 text-slate-600 dark:text-slate-300 transition-colors" onClick={onRefresh}>
-            <span className="material-symbols-outlined">refresh</span>
+          <button className="size-11 flex items-center justify-center rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all group" onClick={onRefresh} title="Refresh Data">
+            <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">refresh</span>
           </button>
         )}
         {token ? (
           <>
-            <button className="hidden lg:flex items-center gap-2 bg-slate-100 dark:bg-primary/5 hover:bg-slate-200 dark:hover:bg-primary/10 px-4 py-2 rounded-lg text-sm font-bold text-slate-700 dark:text-slate-300 transition-colors" onClick={handleClearData} disabled={clearing}>
-              <span className="material-symbols-outlined text-sm">delete_sweep</span> {clearing ? "Clearing..." : "Clear Data"}
+            <button className="hidden lg:flex items-center gap-2 bg-white/5 border border-white/5 hover:bg-white/10 px-4 py-2.5 rounded-xl text-xs font-black text-slate-300 uppercase tracking-widest transition-all" onClick={handleClearData} disabled={clearing}>
+              <span className="material-symbols-outlined text-sm text-expense">delete_sweep</span> {clearing ? "..." : "Clear"}
             </button>
-            <button className="bg-primary hover:bg-primary/90 text-background-dark px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all" onClick={() => navigate("/upload")}>
-              <span className="material-symbols-outlined text-sm">add</span> Upload Statement
+            <button className="bg-primary hover:bg-primary/90 hover:shadow-[0_0_20px_rgba(16,185,129,0.4)] text-background-dark px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all" onClick={() => navigate("/upload")}>
+              <span className="material-symbols-outlined text-sm">add</span> Statement
             </button>
-            <button className="bg-red-500/10 hover:bg-red-500/20 text-red-500 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all ml-2" onClick={handleLogout}>
-              <span className="material-symbols-outlined text-sm">logout</span> Log Out
+            <button className="bg-expense/10 hover:bg-expense/20 border border-expense/20 text-expense px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all" onClick={handleLogout}>
+              <span className="material-symbols-outlined text-sm">logout</span>
             </button>
           </>
         ) : (
           <div className="flex gap-2">
-            <button className="px-4 py-2 rounded-lg text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-primary/10 transition-colors" onClick={() => navigate("/login")}>
+            <button className="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest text-slate-400 hover:text-white hover:bg-white/5 transition-all" onClick={() => navigate("/login")}>
               Log In
             </button>
-            <button className="bg-primary hover:bg-primary/90 text-background-dark px-4 py-2 rounded-lg text-sm font-bold transition-all" onClick={() => navigate("/signup")}>
-              Sign Up
+            <button className="bg-primary hover:bg-primary/90 text-background-dark px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg" onClick={() => navigate("/signup")}>
+              Join Free
             </button>
           </div>
         )}
