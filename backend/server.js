@@ -15,7 +15,11 @@ if (!fs.existsSync(uploadDir)) {
 
 require('./utils/db');
 
-app.use(cors());
+app.use(cors({
+  origin: "*",  // or your exact frontend URL once deployed
+  methods: "GET,POST,PUT,DELETE",
+  allowedHeaders: "Content-Type,Authorization"
+}));
 app.use(express.json());
 
 // Routes
