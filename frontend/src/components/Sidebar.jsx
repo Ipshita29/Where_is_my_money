@@ -18,7 +18,7 @@ export default function Sidebar() {
         <div className="size-10 bg-primary rounded-xl flex items-center justify-center text-background-dark shadow-[0_0_20px_rgba(16,185,129,0.3)]">
           <span className="material-symbols-outlined font-bold">account_balance_wallet</span>
         </div>
-        <h2 className="text-xl font-black tracking-tighter text-white hidden lg:block uppercase">Alimony</h2>
+        <h2 className="text-xl font-black tracking-tighter text-white hidden lg:block uppercase">Where is my Money?</h2>
       </div>
       <nav className="flex-1 px-4 space-y-2 mt-4">
         {navItems.map(({ label, icon, to }) => {
