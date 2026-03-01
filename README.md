@@ -198,9 +198,8 @@ Upload → Parse → Categorize → Detect → Score → Explain → Visualize �
 
 # **12. Demo & Video**
 
-**Live Demo:** _Add Link_  
-**Video Demo:** _Add Link_  
-**GitHub Repository:** _Add Link_
+**Live Demo:** [_Add Link_ ](https://where-is-my-money-1.onrender.com/) 
+
 
 ---
 
