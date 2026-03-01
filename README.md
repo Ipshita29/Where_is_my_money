@@ -199,7 +199,7 @@ Upload → Parse → Categorize → Detect → Score → Explain → Visualize �
 # **12. Demo & Video**
 
 **Deployed Link:** [_Add Link_ ](https://where-is-my-money-1.onrender.com/) 
-**Demo Video and PPT Link:** [_Add Link_ ](https://where-is-my-money-1.onrender.com/](https://drive.google.com/drive/folders/1rIzOwSGxG-bTAPu3QDL_RIzspowdFYO3)) 
+**Demo Video and PPT Link:** [_Add Link_ ](https://drive.google.com/drive/folders/1rIzOwSGxG-bTAPu3QDL_RIzspowdFYO3)
 
 
 ---
