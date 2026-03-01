@@ -8,6 +8,8 @@ export default function Transactions({ dateRange, onDateRangeChange }) {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [filterType, setFilterType] = useState("ALL");
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -39,11 +41,12 @@ export default function Transactions({ dateRange, onDateRangeChange }) {
     return (
         <div className="flex h-screen bg-background-dark font-display text-slate-100">
             <Sidebar />
-            <div className="flex flex-1 flex-col overflow-hidden lg:ml-64 ml-20 transition-all duration-300">
+            <div className="flex flex-1 flex-col overflow-hidden min-w-0 transition-all duration-300">
                 <Header
                     onRefresh={fetchTransactions}
                     dateRange={dateRange}
                     onDateRangeChange={onDateRangeChange}
+                    onSearch={setSearchQuery}
                 />
 
                 <main className="flex-1 overflow-y-auto p-8 animate-in fade-in duration-500">
@@ -53,14 +56,18 @@ export default function Transactions({ dateRange, onDateRangeChange }) {
                                 <h1 className="text-3xl font-black uppercase tracking-tighter mb-1">Financial Records</h1>
                                 <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">High-Density Transaction Ledger</p>
                             </div>
-                            <div className="flex gap-3">
-                                <button className="glass border border-white/5 py-2 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-all">
-                                    Export Ledger (PDF)
-                                </button>
-                                <button className="bg-primary text-background-dark py-2 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest hover:shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all">
-                                    Finalize for Court
-                                </button>
+                            <div className="hidden md:flex bg-white/5 rounded-xl p-1 border border-white/10">
+                                <button onClick={() => setFilterType('ALL')} className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${filterType === 'ALL' ? 'bg-primary text-background-dark shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>All</button>
+                                <button onClick={() => setFilterType('CREDIT')} className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${filterType === 'CREDIT' ? 'bg-primary text-background-dark shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>Credited</button>
+                                <button onClick={() => setFilterType('DEBIT')} className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${filterType === 'DEBIT' ? 'bg-primary text-background-dark shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>Debited</button>
                             </div>
+                        </div>
+
+                        {/* Mobile Filter Toggle */}
+                        <div className="md:hidden flex bg-white/5 rounded-xl p-1 border border-white/10 w-full mb-4 mt-2">
+                            <button onClick={() => setFilterType('ALL')} className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${filterType === 'ALL' ? 'bg-primary text-background-dark shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>All</button>
+                            <button onClick={() => setFilterType('CREDIT')} className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${filterType === 'CREDIT' ? 'bg-primary text-background-dark shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>Credits</button>
+                            <button onClick={() => setFilterType('DEBIT')} className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${filterType === 'DEBIT' ? 'bg-primary text-background-dark shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>Debits</button>
                         </div>
 
                         {error && (
@@ -75,38 +82,8 @@ export default function Transactions({ dateRange, onDateRangeChange }) {
                                     <span className="material-symbols-outlined text-primary animate-spin">sync</span>
                                 </div>
                             </div>
-                        ) : data.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center glass border border-white/5 rounded-3xl p-16 text-center animate-in zoom-in duration-300">
-                                <div className="size-20 rounded-3xl bg-white/5 flex items-center justify-center mb-6">
-                                    <span className="material-symbols-outlined text-5xl text-slate-700">receipt_long</span>
-                                </div>
-                                <p className="text-sm font-black text-slate-500 uppercase tracking-widest">Vault is currently empty</p>
-                                <Link to="/upload" className="mt-6 text-primary hover:text-white font-black text-xs uppercase tracking-widest transition-colors">
-                                    Upload First Statement →
-                                </Link>
-                            </div>
                         ) : (
                             <div className="flex flex-col gap-6">
-                                {/* Filter Bar */}
-                                <div className="glass border border-white/5 p-4 rounded-2xl flex items-center gap-6">
-                                    <div className="flex items-center gap-2 text-primary">
-                                        <span className="material-symbols-outlined text-sm">filter_alt</span>
-                                        <span className="text-[10px] font-black uppercase tracking-widest">Deep Filters:</span>
-                                    </div>
-                                    <div className="flex gap-4">
-                                        <select className="bg-white/5 border border-white/5 rounded-lg px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest outline-none focus:border-primary/50 transition-all">
-                                            <option>All Categories</option>
-                                            <option>Alimony</option>
-                                            <option>Legal Fees</option>
-                                            <option>Expenses</option>
-                                        </select>
-                                        <select className="bg-white/5 border border-white/5 rounded-lg px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest outline-none focus:border-primary/50 transition-all">
-                                            <option>Evidence Status</option>
-                                            <option>Verified</option>
-                                            <option>Missing</option>
-                                        </select>
-                                    </div>
-                                </div>
 
                                 <div className="glass border border-white/5 rounded-3xl overflow-hidden">
                                     <div className="overflow-x-auto">
@@ -117,11 +94,25 @@ export default function Transactions({ dateRange, onDateRangeChange }) {
                                                     <th className="px-6 py-5">Merchant Details</th>
                                                     <th className="px-6 py-5">Category</th>
                                                     <th className="px-6 py-5">Evidence</th>
-                                                    <th className="px-6 py-5 text-right">Amount (USD)</th>
+                                                    <th className="px-6 py-5 text-right">Amount (INR)</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-white/5">
-                                                {data.map((txn) => (
+                                                {data.filter(txn => {
+                                                    // Type filter
+                                                    if (filterType === 'CREDIT' && txn.amount < 0) return false;
+                                                    if (filterType === 'DEBIT' && txn.amount >= 0) return false;
+
+                                                    // Search filter
+                                                    if (!searchQuery) return true;
+                                                    const q = searchQuery.toLowerCase();
+                                                    return (
+                                                        (txn.merchant && txn.merchant.toLowerCase().includes(q)) ||
+                                                        (txn.description && txn.description.toLowerCase().includes(q)) ||
+                                                        (txn.category && txn.category.toLowerCase().includes(q)) ||
+                                                        (txn.amount && txn.amount.toString().includes(q))
+                                                    );
+                                                }).map((txn) => (
                                                     <tr key={txn.id} className="hover:bg-white/[0.02] transition-colors group">
                                                         <td className="px-6 py-5 whitespace-nowrap text-[10px] font-bold text-slate-400 tabular-nums uppercase">
                                                             {new Date(txn.date).toLocaleDateString(undefined, { month: 'short', day: '2-digit', year: 'numeric' })}
@@ -150,12 +141,24 @@ export default function Transactions({ dateRange, onDateRangeChange }) {
                                                                 </span>
                                                             </div>
                                                         </td>
-                                                        <td className={`px-6 py-5 text-right text-xs font-black tabular-nums tracking-tighter ${txn.type === 'credit' ? 'text-primary' : 'text-slate-200'
+                                                        <td className={`px-6 py-5 text-right text-xs font-black tabular-nums tracking-tighter ${txn.amount >= 0 ? 'text-primary' : 'text-expense'
                                                             }`}>
-                                                            {txn.type === 'credit' ? '+' : '-'}${Math.abs(txn.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                                            {txn.amount >= 0 ? '+' : '-'}₹{Math.abs(txn.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                                         </td>
                                                     </tr>
                                                 ))}
+
+                                                {data.filter(txn => {
+                                                    if (!searchQuery) return true;
+                                                    const q = searchQuery.toLowerCase();
+                                                    return (txn.merchant?.toLowerCase().includes(q) || txn.description?.toLowerCase().includes(q) || txn.category?.toLowerCase().includes(q) || txn.amount?.toString().includes(q));
+                                                }).length === 0 && (
+                                                        <tr>
+                                                            <td colSpan="5" className="px-6 py-8 text-center text-slate-500 text-xs font-black uppercase tracking-widest">
+                                                                No transactions found matching "{searchQuery}"
+                                                            </td>
+                                                        </tr>
+                                                    )}
                                             </tbody>
                                         </table>
                                     </div>
@@ -165,6 +168,6 @@ export default function Transactions({ dateRange, onDateRangeChange }) {
                     </div>
                 </main>
             </div>
-        </div>
+        </div >
     );
 }

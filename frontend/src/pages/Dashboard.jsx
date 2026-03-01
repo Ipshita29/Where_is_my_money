@@ -50,7 +50,7 @@ export default function Dashboard({ dateRange, onDateRangeChange }) {
     <div className="flex h-full min-h-screen bg-background-dark font-display text-slate-100">
       <Sidebar />
 
-      <main className="flex-1 flex flex-col min-w-0 lg:ml-64 ml-20 transition-all duration-300">
+      <main className="flex-1 flex flex-col min-w-0 transition-all duration-300">
         <Header
           onRefresh={fetchData}
           activeFile={summary?.activeFile}
@@ -88,7 +88,7 @@ export default function Dashboard({ dateRange, onDateRangeChange }) {
             <div className="grid grid-cols-1 gap-6">
               <div className="glass border border-white/5 rounded-2xl p-6 flex flex-col min-h-[350px]">
                 <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-6">Daily Spending (31-Day Trend)</h3>
-                <DailySpendingBar data={summary?.monthlySpending} />
+                <DailySpendingBar data={summary?.dailySpending} />
               </div>
             </div>
 

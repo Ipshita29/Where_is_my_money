@@ -1,11 +1,15 @@
 import { useNavigate } from "react-router-dom";
 import { api } from "../services/api";
 import { useState } from "react";
+import { createPortal } from "react-dom";
 
-export default function Header({ onRefresh, activeFile, dateRange, onDateRangeChange }) {
+export default function Header({ onRefresh, activeFile, dateRange, onDateRangeChange, onSearch }) {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
+  const user = token ? JSON.parse(localStorage.getItem("user") || "{}") : null;
   const [clearing, setClearing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   function handleLogout() {
     localStorage.removeItem("token");
@@ -13,13 +17,16 @@ export default function Header({ onRefresh, activeFile, dateRange, onDateRangeCh
     navigate("/login");
   }
 
-  async function handleClearData() {
-    if (!window.confirm("Are you sure you want to clear all your transaction data? This cannot be undone.")) return;
+  function handleClearData() {
+    setShowClearConfirm(true);
+  }
 
+  async function confirmClearData() {
     setClearing(true);
     try {
       await api.delete("/transactions");
       if (onRefresh) onRefresh();
+      setShowClearConfirm(false);
     } catch (err) {
       console.error("Failed to clear data:", err);
       alert("Failed to clear data.");
@@ -27,6 +34,20 @@ export default function Header({ onRefresh, activeFile, dateRange, onDateRangeCh
       setClearing(false);
     }
   }
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (onSearch) {
+      onSearch(searchQuery);
+    }
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    if (onSearch) {
+      onSearch(e.target.value); // Live search
+    }
+  };
 
   // Handle date formatting for the display button
   const formatDateDisplay = () => {
@@ -38,30 +59,28 @@ export default function Header({ onRefresh, activeFile, dateRange, onDateRangeCh
 
   return (
     <header className="h-20 glass border-b border-white/5 flex items-center justify-between px-8 sticky top-0 z-30 w-full backdrop-blur-xl">
-      <div className="flex items-center gap-6 w-full max-w-2xl">
-        <form
-          className="relative w-full max-w-md group"
-          onSubmit={(e) => {
-            e.preventDefault();
-            alert("Search functionality coming soon!");
-          }}
-        >
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors">search</span>
-          <input
-            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/5 rounded-xl focus:ring-2 focus:ring-primary/50 text-sm outline-none text-white placeholder:text-slate-500 transition-all focus:bg-white/10"
-            placeholder="Search records, evidence..."
-            type="text"
-          />
-        </form>
+      <div className="flex items-center gap-6 w-full max-w-3xl">
+        <h2 className="text-xl font-black tracking-tighter text-white uppercase whitespace-nowrap hidden md:block">
+          Where is my <span className="text-primary">Money</span>?
+        </h2>
+
+        {onSearch && (
+          <form
+            className="relative w-full max-w-md group"
+            onSubmit={handleSearchSubmit}
+          >
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors">search</span>
+            <input
+              className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/5 rounded-xl focus:ring-2 focus:ring-primary/50 text-sm outline-none text-white placeholder:text-slate-500 transition-all focus:bg-white/10"
+              placeholder="Search records, evidence..."
+              type="text"
+              value={searchQuery}
+              onChange={handleSearchChange}
+            />
+          </form>
+        )}
 
         <div className="flex items-center gap-2">
-          {activeFile && (
-            <div className="hidden xl:flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-lg border border-primary/20 text-[10px] font-black text-primary uppercase tracking-widest whitespace-nowrap">
-              <span className="material-symbols-outlined text-[16px]">verified_user</span>
-              <span className="truncate max-w-[150px]">{activeFile}</span>
-            </div>
-          )}
-
           <div className="relative group/date">
             <button
               className="flex items-center gap-2 bg-white/5 px-4 py-2.5 rounded-xl border border-white/5 whitespace-nowrap cursor-pointer hover:bg-white/10 transition-all hover:border-white/10"
@@ -106,11 +125,6 @@ export default function Header({ onRefresh, activeFile, dateRange, onDateRangeCh
         </div>
       </div>
       <div className="flex items-center gap-3">
-        {onRefresh && (
-          <button className="size-11 flex items-center justify-center rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all group" onClick={onRefresh} title="Refresh Data">
-            <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">refresh</span>
-          </button>
-        )}
         {token ? (
           <>
             <button className="hidden lg:flex items-center gap-2 bg-white/5 border border-white/5 hover:bg-white/10 px-4 py-2.5 rounded-xl text-xs font-black text-slate-300 uppercase tracking-widest transition-all" onClick={handleClearData} disabled={clearing}>
@@ -119,9 +133,49 @@ export default function Header({ onRefresh, activeFile, dateRange, onDateRangeCh
             <button className="bg-primary hover:bg-primary/90 hover:shadow-[0_0_20px_rgba(16,185,129,0.4)] text-background-dark px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all" onClick={() => navigate("/upload")}>
               <span className="material-symbols-outlined text-sm">add</span> Statement
             </button>
-            <button className="bg-expense/10 hover:bg-expense/20 border border-expense/20 text-expense px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all" onClick={handleLogout}>
+            <button className="bg-expense/10 hover:bg-expense/20 border border-expense/20 text-expense px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all" title="Logout" onClick={handleLogout}>
               <span className="material-symbols-outlined text-sm">logout</span>
             </button>
+            <div className="size-11 ml-2 rounded-xl bg-gradient-to-br from-primary to-primary/50 flex items-center justify-center shrink-0 shadow-lg border border-primary/20 cursor-pointer hover:shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-all" title={user?.name || "User Account"}>
+              <span className="material-symbols-outlined text-background-dark text-xl font-bold">person</span>
+            </div>
+
+            {/* Clear Confirmation Modal Overlay via Portal */}
+            {showClearConfirm && createPortal(
+              <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background-dark/80 backdrop-blur-sm animate-in fade-in duration-200">
+                <div className="glass border border-expense/20 rounded-3xl p-8 max-w-sm w-full mx-4 shadow-[0_0_50px_rgba(239,68,68,0.15)] flex flex-col gap-6 animate-in zoom-in-95 duration-300">
+                  <div className="flex flex-col items-center text-center gap-4">
+                    <div className="size-16 rounded-full bg-expense/10 flex items-center justify-center text-expense">
+                      <span className="material-symbols-outlined text-3xl">warning</span>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-black text-white uppercase tracking-tighter mb-2">Clear All Data?</h3>
+                      <p className="text-xs font-bold text-slate-500 uppercase tracking-widest leading-relaxed">
+                        This action will permanently delete all your financial records and evidence. This cannot be undone.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3 mt-2">
+                    <button
+                      onClick={() => setShowClearConfirm(false)}
+                      className="flex-1 py-3 px-4 rounded-xl text-xs font-black uppercase tracking-widest text-slate-300 bg-white/5 hover:bg-white/10 border border-white/5 transition-all"
+                      disabled={clearing}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={confirmClearData}
+                      className="flex-1 py-3 px-4 rounded-xl text-xs font-black uppercase tracking-widest text-white bg-expense hover:bg-expense/90 hover:shadow-[0_0_20px_rgba(239,68,68,0.4)] transition-all flex justify-center items-center gap-2"
+                      disabled={clearing}
+                    >
+                      {clearing ? <span className="material-symbols-outlined animate-spin text-sm">sync</span> : "Delete All"}
+                    </button>
+                  </div>
+                </div>
+              </div>,
+              document.body
+            )}
+
           </>
         ) : (
           <div className="flex gap-2">

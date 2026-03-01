@@ -52,9 +52,9 @@ export default function Signup() {
               <span className="text-white/60">Asset Tracker.</span>
             </h1>
 
-            
+
             <div className="flex flex-col gap-6">
-         
+
               <div className="flex gap-4">
                 <div className="size-8 rounded-lg bg-white/10 flex items-center justify-center border border-white/10 shrink-0">
                   <span className="material-symbols-outlined text-sm text-primary">account_balance_wallet</span>
@@ -99,17 +99,7 @@ export default function Signup() {
             </div>
           </div>
 
-          <div className="flex items-center gap-6 opacity-60">
-            <div className="flex flex-col">
-              <span className="text-2xl font-black">15k+</span>
-              <span className="text-[10px] font-black uppercase tracking-widest">Active Users</span>
-            </div>
-            <div className="w-px h-8 bg-white/20" />
-            <div className="flex flex-col">
-              <span className="text-2xl font-black">99.9%</span>
-              <span className="text-[10px] font-black uppercase tracking-widest">Uptime</span>
-            </div>
-          </div>
+
         </div>
       </div>
 

@@ -1,6 +1,6 @@
 export default function Metrics({ totalSpent = 0, totalCredited = 0, anomalyCount = 0 }) {
   const fmt = (n) =>
-    n.toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    n.toLocaleString("en-IN", { style: "currency", currency: "INR", minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
   const netWorth = totalCredited - totalSpent;
 
@@ -9,7 +9,6 @@ export default function Metrics({ totalSpent = 0, totalCredited = 0, anomalyCoun
       label: "Net Balance",
       value: fmt(netWorth),
       subtext: "Total Position",
-      trend: "+12.5%",
       isPositive: netWorth >= 0,
       icon: "account_balance",
       color: netWorth >= 0 ? "text-primary" : "text-expense"
@@ -18,7 +17,6 @@ export default function Metrics({ totalSpent = 0, totalCredited = 0, anomalyCoun
       label: "Total Income",
       value: fmt(totalCredited),
       subtext: "Credits Detected",
-      trend: "+8.2%",
       isPositive: true,
       icon: "trending_up",
       color: "text-primary"
@@ -27,7 +25,6 @@ export default function Metrics({ totalSpent = 0, totalCredited = 0, anomalyCoun
       label: "Total Expenses",
       value: fmt(totalSpent),
       subtext: "Debits Detected",
-      trend: "-2.4%",
       isPositive: false,
       icon: "payments",
       color: "text-expense"
@@ -59,9 +56,11 @@ export default function Metrics({ totalSpent = 0, totalCredited = 0, anomalyCoun
           <div>
             <p className="text-3xl font-black text-white tabular-nums tracking-tighter mb-1">{card.value}</p>
             <div className="flex items-center gap-2">
-              <span className={`text-[10px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded ${card.isPositive ? 'bg-primary/10 text-primary' : 'bg-expense/10 text-expense'}`}>
-                {card.trend}
-              </span>
+              {card.trend && (
+                <span className={`text-[10px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded ${card.isPositive ? 'bg-primary/10 text-primary' : 'bg-expense/10 text-expense'}`}>
+                  {card.trend}
+                </span>
+              )}
               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest opacity-60">{card.subtext}</span>
             </div>
           </div>

@@ -68,7 +68,7 @@ export default function Upload() {
         <div className="flex h-screen bg-background-dark font-display text-slate-100">
             <Sidebar />
 
-            <main className="flex-1 flex flex-col min-w-0 lg:ml-64 ml-20 transition-all duration-300">
+            <main className="flex-1 flex flex-col min-w-0 transition-all duration-300">
                 <Header />
 
                 <div className="p-8 max-w-4xl w-full mx-auto space-y-8 animate-in fade-in duration-700">
@@ -100,16 +100,6 @@ export default function Upload() {
                                             <span>AI Classification of Legal Outliers</span>
                                         </li>
                                     </ul>
-                                </div>
-                            </div>
-
-                            <div className="glass border border-white/5 rounded-2xl p-6 flex items-center gap-4 group hover:bg-white/5 transition-colors cursor-pointer">
-                                <div className="size-10 rounded-xl bg-white/5 flex items-center justify-center text-slate-500 group-hover:text-primary transition-colors">
-                                    <span className="material-symbols-outlined text-xl">help</span>
-                                </div>
-                                <div className="flex flex-col">
-                                    <span className="text-[10px] font-black text-white uppercase tracking-widest">Need Assistance?</span>
-                                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">View Parsing Samples</span>
                                 </div>
                             </div>
                         </div>
@@ -220,7 +210,7 @@ export default function Upload() {
                                                 <td className="px-6 py-4 text-[10px] font-bold text-slate-400 tabular-nums">{txn.date}</td>
                                                 <td className="px-6 py-4 text-xs font-black text-white uppercase tracking-tight">{txn.merchant}</td>
                                                 <td className={`px-6 py-4 text-right text-xs font-black tabular-nums tracking-tighter ${txn.type === 'credit' ? 'text-primary' : 'text-slate-100'}`}>
-                                                    {txn.type === 'credit' ? '+' : '-'}${Math.abs(txn.amount).toLocaleString()}
+                                                    {txn.type === 'credit' ? '+' : '-'}₹{Math.abs(txn.amount).toLocaleString()}
                                                 </td>
                                             </tr>
                                         ))}

@@ -2,21 +2,41 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 
 export default function DailySpendingBar({ data }) {
     // Mock data generation if real data is missing or incomplete
+    // Dynamic date generation for the last 31 days
     const processData = () => {
-        if (!data || Object.keys(data).length === 0) {
-            return Array.from({ length: 31 }, (_, i) => ({
-                day: i + 1,
-                amount: Math.floor(Math.random() * 500)
-            }));
+        const result = [];
+        const today = new Date();
+
+        // Find max date in data if available, otherwise use today
+        let endDate = today;
+        if (data && Object.keys(data).length > 0) {
+            const dates = Object.keys(data).map(d => new Date(d).getTime());
+            endDate = new Date(Math.max(...dates));
         }
 
-        // Transform { "YYYY-MM-DD": amount } to [ { day: DD, amount: X } ]
-        const days = Object.entries(data).map(([date, amount]) => ({
-            day: new Date(date).getDate(),
-            amount: Math.abs(amount)
-        })).sort((a, b) => a.day - b.day);
+        for (let i = 30; i >= 0; i--) {
+            const d = new Date(endDate);
+            d.setDate(d.getDate() - i);
+            const dateString = d.toISOString().split('T')[0];
 
-        return days;
+            // Format for display (e.g. 'Feb 15')
+            const displayDate = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+
+            let amount = 0;
+            if (data && data[dateString]) {
+                amount = Math.abs(data[dateString]);
+            } else if (!data || Object.keys(data).length === 0) {
+                // only mock if there is no data at all
+                amount = Math.floor(Math.random() * 500);
+            }
+
+            result.push({
+                day: displayDate, // 'day' key holds the formatted date label
+                amount: amount,
+                fullDate: dateString
+            });
+        }
+        return result;
     };
 
     const chartData = processData();
@@ -44,14 +64,17 @@ export default function DailySpendingBar({ data }) {
                         dataKey="day"
                         axisLine={false}
                         tickLine={false}
-                        tick={{ fill: '#64748B', fontSize: 10, fontWeight: 700 }}
-                        dy={10}
+                        tick={{ fill: '#64748B', fontSize: 9, fontWeight: 700 }}
+                        angle={-45}
+                        textAnchor="end"
+                        height={60}
+                        dy={5}
                     />
                     <YAxis
                         axisLine={false}
                         tickLine={false}
                         tick={{ fill: '#64748B', fontSize: 10, fontWeight: 700 }}
-                        tickFormatter={(value) => `$${value}`}
+                        tickFormatter={(value) => `₹${value}`}
                     />
                     <Tooltip
                         cursor={{ fill: 'rgba(255,255,255,0.05)' }}

@@ -29,8 +29,8 @@ export default function RecentTransactionsTable({ transactions }) {
                                     <p className="text-xs font-bold text-white truncate max-w-[120px]">{tx.merchant || tx.description}</p>
                                     <p className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">{tx.category || "General"}</p>
                                 </td>
-                                <td className={`py-3 text-xs font-black text-right tabular-nums ${tx.type === 'credit' ? 'text-primary' : 'text-slate-300'}`}>
-                                    {tx.type === 'credit' ? '+' : '-'}${Math.abs(tx.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                <td className={`py-3 text-xs font-black text-right tabular-nums ${tx.amount >= 0 ? 'text-primary' : 'text-expense'}`}>
+                                    {tx.amount >= 0 ? '+' : '-'}₹{Math.abs(tx.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                 </td>
                             </tr>
                         ))}

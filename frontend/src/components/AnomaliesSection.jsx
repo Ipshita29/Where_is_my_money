@@ -44,10 +44,11 @@ export default function AnomaliesSection({ anomalies = [] }) {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-white/5">
-                  <th className="pb-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Transaction Record</th>
-                  <th className="pb-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Amount</th>
-                  <th className="pb-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Risk Deviation</th>
-                  <th className="pb-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Insight</th>
+                  <th className="pb-4 w-12"></th>
+                  <th className="pb-4 text-[10px] font-black text-slate-500 uppercase tracking-widest min-w-[200px]">Transaction Record</th>
+                  <th className="pb-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-left">Amount</th>
+                  <th className="pb-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Insight</th>
+                  <th className="pb-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">

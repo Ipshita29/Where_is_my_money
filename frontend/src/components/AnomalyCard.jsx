@@ -40,27 +40,27 @@ export default function AnomalyCard({ id, merchant, amount, category, date, risk
 
   return (
     <tr className="group hover:bg-white/[0.02] transition-all">
-      <td className="py-4">
+      <td className="p-4 md:p-6 w-12 text-center">
+        <div className="relative inline-flex">
+          <div className={`size-3 rounded-full ${riskLevel === 'CRITICAL' || riskLevel === 'HIGH' ? 'bg-expense animate-pulse' : 'bg-alimony'}`} />
+          <div className={`absolute inset-0 size-3 rounded-full ${riskLevel === 'CRITICAL' || riskLevel === 'HIGH' ? 'bg-expense animate-ping' : ''} opacity-40`} />
+        </div>
+      </td>
+      <td className="p-4 md:p-6 min-w-[200px]">
         <div className="flex flex-col">
           <span className="text-xs font-black text-white uppercase tracking-tight mb-0.5">{merchant}</span>
           <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{category || "Uncategorized"}</span>
         </div>
       </td>
-      <td className="py-4 text-right">
-        <span className="text-xs font-black text-expense tabular-nums tracking-tighter">${amount.toLocaleString()}</span>
+      <td className="p-4 md:p-6">
+        <span className="text-xs font-black text-expense tabular-nums tracking-tighter">₹{amount.toLocaleString()}</span>
       </td>
-      <td className="py-4 px-4">
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <div className={`size-2 rounded-full ${riskLevel === 'CRITICAL' || riskLevel === 'HIGH' ? 'bg-expense animate-pulse' : 'bg-alimony'}`} />
-            <div className={`absolute inset-0 size-2 rounded-full ${riskLevel === 'CRITICAL' || riskLevel === 'HIGH' ? 'bg-expense animate-ping' : ''} opacity-40`} />
-          </div>
-          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest truncate max-w-[200px]" title={details}>
-            {details}
-          </span>
-        </div>
+      <td className="p-4 md:p-6">
+        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest truncate max-w-[200px] block" title={details}>
+          {details}
+        </span>
       </td>
-      <td className="py-4 text-right">
+      <td className="p-4 md:p-6 text-right relative">
         <div className="flex justify-end gap-2 items-center">
           {explanation && (
             <div className="absolute right-0 top-full mt-2 glass-dark z-50 p-4 rounded-xl border border-alimony/20 max-w-[300px] text-left animate-in fade-in zoom-in duration-200">

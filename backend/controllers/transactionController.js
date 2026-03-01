@@ -47,6 +47,7 @@ exports.getSummary = (req, res) => {
             totalCredited: 0,
             categoryTotals: {},
             monthlySpending: {},
+            dailySpending: {},
             activeFile: null
         };
 
@@ -64,10 +65,14 @@ exports.getSummary = (req, res) => {
                 summary.categoryTotals[cat] = (summary.categoryTotals[cat] || 0) + Math.abs(amount);
             }
 
-            // Monthly Spending
             if (txn.date) {
+                // Monthly Spending
                 const month = txn.date.substring(0, 7); // YYYY-MM
                 summary.monthlySpending[month] = (summary.monthlySpending[month] || 0) + (amount < 0 ? Math.abs(amount) : 0);
+
+                // Daily Spending
+                const day = txn.date.substring(0, 10); // YYYY-MM-DD
+                summary.dailySpending[day] = (summary.dailySpending[day] || 0) + (amount < 0 ? Math.abs(amount) : 0);
             }
         });
 
